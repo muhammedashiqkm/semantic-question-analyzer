@@ -3,8 +3,6 @@ import requests
 import google.generativeai as genai
 from bs4 import BeautifulSoup
 
-EMBEDDING_MODEL = 'text-embedding-004'
-
 def clean_html(raw_html):
     """Removes HTML tags from a string."""
     if not raw_html:
@@ -31,15 +29,15 @@ def fetch_questions_from_url(url):
         logging.error(f"Error decoding JSON from URL {url}.")
         return None
 
-def get_embeddings(texts):
-    """Generates embeddings for a list of texts using the Google AI model."""
+def get_embeddings(texts, model_name):
+    """Generates embeddings for a list of texts using the specified Google AI model."""
     try:
         result = genai.embed_content(
-            model=EMBEDDING_MODEL,
+            model=model_name,
             content=texts,
             task_type="RETRIEVAL_DOCUMENT"
         )
         return result['embedding']
     except Exception as e:
-        logging.error(f"Error generating embeddings: {e}")
+        logging.error(f"Error generating embeddings with model {model_name}: {e}")
         return None

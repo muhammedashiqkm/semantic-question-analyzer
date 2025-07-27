@@ -13,12 +13,17 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application's code into the container
 COPY . .
 
+# Create a non-privileged user to run the application
+RUN adduser --system --group appuser
+USER appuser
+
 # Expose the port the app runs on
 EXPOSE 5000
 
 # Define environment variables (can be overridden at runtime)
 ENV FLASK_APP=run.py
 ENV FLASK_ENV=production
+ENV GUNICORN_WORKERS=2
 
-# Run the application using Gunicorn with 2 workers
-CMD ["gunicorn", **"--workers", "2",** "--bind", "0.0.0.0:5000", "run:app"]
+# Run the application using Gunicorn
+CMD ["gunicorn", "--workers", "$GUNICORN_WORKERS", "--bind", "0.0.0.0:5000", "run:app"]

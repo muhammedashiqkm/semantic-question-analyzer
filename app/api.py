@@ -13,6 +13,14 @@ api_bp = Blueprint('api', __name__)
 similarity_schema = SimilarityCheckSchema()
 grouping_schema = GroupingSchema()
 
+@api_bp.route('/health', methods=['GET'])
+def health_check():
+    """
+    Health check endpoint to confirm the API is responsive.
+    This endpoint does not require authentication.
+    """
+    return jsonify({"status": "api_healthy"}), 200
+
 @api_bp.route('/check_similarity', methods=['POST'])
 @jwt_required()
 def check_similarity():
@@ -27,12 +35,16 @@ def check_similarity():
 
     questions_url = data['questions_url']
     new_question_text = data['question']
-    
+
+    # Get config values from the application context
+    similarity_threshold = current_app.config['SIMILARITY_THRESHOLD']
+    embedding_model = current_app.config['EMBEDDING_MODEL_NAME']
+
     logging.info(f"Checking similarity for question at URL: {questions_url}")
 
     existing_questions = fetch_questions_from_url(questions_url)
     if existing_questions is None:
-        return jsonify({"error": "Failed to fetch or parse questions from the provided URL."}), 500
+        return jsonify({"error": f"Resource not found or could not be parsed from the provided URL: {questions_url}"}), 404
 
     if not existing_questions:
         return jsonify({"response": "no", "reason": "No existing questions found at URL."})
@@ -40,7 +52,7 @@ def check_similarity():
     existing_questions_text = [clean_html(q.get('Question', '')) for q in existing_questions]
     all_texts = [new_question_text] + existing_questions_text
 
-    embeddings = get_embeddings(all_texts)
+    embeddings = get_embeddings(all_texts, model_name=embedding_model)
     if embeddings is None:
         return jsonify({"error": "Failed to generate text embeddings."}), 500
 
@@ -48,13 +60,11 @@ def check_similarity():
     existing_questions_embeddings = np.array(embeddings[1:])
 
     similarities = cosine_similarity(new_question_embedding, existing_questions_embeddings)[0]
-    
-    # Use threshold from app config
-    threshold = current_app.config['SIMILARITY_THRESHOLD']
+
     matched_questions = [
-        existing_questions[i] for i, score in enumerate(similarities) if score >= threshold
+        existing_questions[i] for i, score in enumerate(similarities) if score >= similarity_threshold
     ]
-    
+
     if matched_questions:
         return jsonify({"response": "yes", "matched_questions": matched_questions})
     else:
@@ -72,33 +82,36 @@ def group_similar_questions():
         data = grouping_schema.load(request.get_json())
     except ValidationError as err:
         return jsonify(err.messages), 400
-        
+
     questions_url = data['questions_url']
+
+    # Get config values from the application context
+    similarity_threshold = current_app.config['SIMILARITY_THRESHOLD']
+    embedding_model = current_app.config['EMBEDDING_MODEL_NAME']
+
     logging.info(f"Grouping questions from URL: {questions_url}")
 
     questions = fetch_questions_from_url(questions_url)
     if questions is None:
-        return jsonify({"error": "Failed to fetch or parse questions from the provided URL."}), 500
+        return jsonify({"error": f"Resource not found or could not be parsed from the provided URL: {questions_url}"}), 404
 
     if not questions or len(questions) < 2:
         return jsonify({"response": "no", "reason": "Not enough questions to form a group."})
 
     questions_text = [clean_html(q.get('Question', '')) for q in questions]
-    embeddings = get_embeddings(questions_text)
+    embeddings = get_embeddings(questions_text, model_name=embedding_model)
     if embeddings is None:
         return jsonify({"error": "Failed to generate text embeddings."}), 500
 
-    # Use threshold from app config
-    threshold = current_app.config['SIMILARITY_THRESHOLD']
     clustering = AgglomerativeClustering(
         n_clusters=None,
         metric='cosine',
         linkage='average',
-        distance_threshold=(1 - threshold)
+        distance_threshold=(1 - similarity_threshold)
     ).fit(embeddings)
 
     labels = clustering.labels_
-    
+
     groups = {}
     for i, label in enumerate(labels):
         if label not in groups:
