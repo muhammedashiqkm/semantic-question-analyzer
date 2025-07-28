@@ -15,7 +15,7 @@ jwt = JWTManager()
 ma = Marshmallow()
 cors = CORS()
 limiter = Limiter(
-    get_remote_address,
+    key_func=get_remote_address,
     default_limits=["200 per day", "50 per hour"]
 )
 
@@ -28,8 +28,7 @@ def create_app():
     
     # --- Logging Configuration ---
     if not app.debug and not app.testing:
-        if not os.path.exists('logs'):
-            os.mkdir('logs')
+        os.makedirs("logs", exist_ok=True)
         file_handler = RotatingFileHandler(
             'logs/app.log', 
             maxBytes=10240, 
