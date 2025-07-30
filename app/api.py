@@ -21,7 +21,7 @@ def health_check():
     """
     return jsonify({"status": "api_healthy"}), 200
 
-@api_bp.route('/check_similarity', methods=['POST'])
+@api_bp.route('/check_question', methods=['POST'])
 @jwt_required()
 def check_similarity():
     """
