@@ -3,15 +3,25 @@ version: '3.8'
 services:
   semantic-question-analyzer:
     build: .
+    restart: unless-stopped 
     ports:
       - "5000:5000"
     env_file:
       - .env
     environment:
+     
       - MEMCACHED_URL=memcached://memcached:11211
     depends_on:
+      
       - memcached
+    volumes:
+      
+      - logs:/usr/src/app/logs
 
   memcached:
     image: memcached:latest
-    
+    restart: unless-stopped 
+
+volumes:
+  logs:
+    driver: local
