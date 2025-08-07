@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   semantic-question-analyzer:
     build: .
@@ -5,3 +7,11 @@ services:
       - "5000:5000"
     env_file:
       - .env
+    environment:
+      - MEMCACHED_URL=memcached://memcached:11211
+    depends_on:
+      - memcached
+
+  memcached:
+    image: memcached:latest
+    
