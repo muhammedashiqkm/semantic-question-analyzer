@@ -1,26 +1,37 @@
 version: '3.8'
 
 services:
-  semantic-question-analyzer:
-    build: .
-    restart: unless-stopped 
+  qb-autogen-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: qb-autogen-api
     ports:
       - "5000:5000"
+    environment:
+      # Point the rate limiter to the memcached service
+      - RATELIMIT_STORAGE_URI=memcached://memcached:11211
+      - FLASK_ENV=production
+      - PYTHONUNBUFFERED=1
     env_file:
       - .env
-    environment:
-     
-      - MEMCACHED_URL=memcached://memcached:11211
-    depends_on:
-      
-      - memcached
     volumes:
-      
-      - logs:/usr/src/app/logs
+      - ./logs:/app/logs
+    restart: unless-stopped
+    depends_on: # Add this to ensure memcached starts first
+      - memcached
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
+  # Add this new service for Memcached
   memcached:
-    image: memcached:latest
-    restart: unless-stopped 
+    image: memcached:1.6-alpine
+    container_name: qb-autogen-memcached
+    restart: unless-stopped
 
 volumes:
   logs:
