@@ -19,8 +19,12 @@ class Config:
     SIMILARITY_THRESHOLD = float(os.environ.get('SIMILARITY_THRESHOLD', 0.85))
 
     # Embedding model name can be set via environment variable
-    EMBEDDING_MODEL_NAME = os.environ.get('EMBEDDING_MODEL_NAME', 'models/text-embedding-004')
+    EMBEDDING_MODEL_NAME = os.environ.get('EMBEDDING_MODEL_NAME', 'text-embedding-004')
 
     # CORS origins can be set via a comma-separated environment variable
     CORS_ORIGINS_STRING = os.environ.get('CORS_ORIGINS', '*')
     CORS_ORIGINS = CORS_ORIGINS_STRING.split(',')
+
+    # Rate limit storage URI for Memcached
+    RATELIMIT_STORAGE_URI = os.environ.get('MEMCACHED_URL',"memcached://memcached:11211")
+    
