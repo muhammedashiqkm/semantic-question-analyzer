@@ -15,7 +15,7 @@ jwt = JWTManager()
 ma = Marshmallow()
 cors = CORS()
 limiter = Limiter(
-    key_func=get_remote_address,
+    key_func=get_remote_address
 )
 
 # --- Application Factory ---
