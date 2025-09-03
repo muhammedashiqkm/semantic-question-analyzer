@@ -1,0 +1,39 @@
+# Git and Docker files
+.git
+.gitignore
+.dockerignore
+Dockerfile
+docker-compose.yml
+
+# Python virtual environment
+venv
+.venv
+env
+*.pyc
+*.pyo
+__pycache__
+
+# IDE and editor directories
+.vscode
+.idea
+
+# Local environment variables - prevents leaking secrets into the image
+.env
+
+# Runtime logs - should be handled by volumes, not copied into the image
+logs/
+
+# Build and distribution artifacts
+build/
+dist/
+*.egg-info
+
+# Testing artifacts
+.pytest_cache
+.coverage
+htmlcov
+.tox
+
+# OS-specific files
+.DS_Store
+Thumbs.db

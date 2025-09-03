@@ -1,0 +1,1202 @@
+[
+  {
+    "ID": 1,
+    "Question": "How do I check my Python version?"
+  },
+  {
+    "ID": 2,
+    "Question": "What is the command to see the installed Python version?"
+  },
+  {
+    "ID": 3,
+    "Question": "How can I find out which version of Python is running?"
+  },
+  {
+    "ID": 4,
+    "Question": "How do you create a virtual environment in Python?"
+  },
+  {
+    "ID": 5,
+    "Question": "What's the command to make a new Python venv?"
+  },
+  {
+    "ID": 6,
+    "Question": "What is the difference between a list and a tuple in Python?"
+  },
+  {
+    "ID": 7,
+    "Question": "When should I use a tuple versus a list?"
+  },
+  {
+    "ID": 8,
+    "Question": "Python lists vs tuples, what's the distinction?"
+  },
+  {
+    "ID": 9,
+    "Question": "What is the capital of Japan?"
+  },
+  {
+    "ID": 10,
+    "Question": "What is Japan's capital city?"
+  },
+  {
+    "ID": 11,
+    "Question": "How do I commit changes in Git?"
+  },
+  {
+    "ID": 12,
+    "Question": "What is the command to save my work in Git?"
+  },
+  {
+    "ID": 13,
+    "Question": "How do you make a commit in a git repository?"
+  },
+  {
+    "ID": 14,
+    "Question": "How to select all columns from a table named 'users'?"
+  },
+  {
+    "ID": 15,
+    "Question": "Write a SQL query to get every record from the 'users' table."
+  },
+  {
+    "ID": 16,
+    "Question": "How do I build a Docker image from a Dockerfile?"
+  },
+  {
+    "ID": 17,
+    "Question": "What's the command to create a Docker image?"
+  },
+  {
+    "ID": 18,
+    "Question": "How do you run a Flask application?"
+  },
+  {
+    "ID": 19,
+    "Question": "What is the command to start the Flask development server?"
+  },
+  {
+    "ID": 20,
+    "Question": "What is the powerhouse of the cell?"
+  },
+  {
+    "ID": 21,
+    "Question": "Which organelle is known as the cell's powerhouse?"
+  },
+  {
+    "ID": 22,
+    "Question": "Who wrote the play 'Hamlet'?"
+  },
+  {
+    "ID": 23,
+    "Question": "How does a blockchain work?"
+  },
+  {
+    "ID": 24,
+    "Question": "What are the primary colors?"
+  },
+  {
+    "ID": 25,
+    "Question": "How to sort a dictionary by value in Python?"
+  },
+  {
+    "ID": 26,
+    "Question": "Tell me the way to check the Python interpreter version."
+  },
+  {
+    "ID": 27,
+    "Question": "Steps to initialize a virtual environment for a Python project."
+  },
+  {
+    "ID": 28,
+    "Question": "Contrast lists and tuples in Python."
+  },
+  {
+    "ID": 29,
+    "Question": "Name the capital city of Japan."
+  },
+  {
+    "ID": 30,
+    "Question": "What are the steps to commit a file in git?"
+  },
+  {
+    "ID": 31,
+    "Question": "What's the SQL to fetch all data from the 'users' table?"
+  },
+  {
+    "ID": 32,
+    "Question": "Steps to build a docker image."
+  },
+  {
+    "ID": 33,
+    "Question": "How to launch a web app made with Flask?"
+  },
+  {
+    "ID": 34,
+    "Question": "Mitochondria is known as what in a cell?"
+  },
+  {
+    "ID": 35,
+    "Question": "What is the boiling point of water at sea level?"
+  },
+  {
+    "ID": 36,
+    "Question": "Explain the theory of relativity."
+  },
+  {
+    "ID": 37,
+    "Question": "What is the purpose of a CSS preprocessor?"
+  },
+  {
+    "ID": 38,
+    "Question": "What is the main function of an operating system?"
+  },
+  {
+    "ID": 39,
+    "Question": "Show me the Python version."
+  },
+  {
+    "ID": 40,
+    "Question": "How to set up an isolated Python environment?"
+  },
+  {
+    "ID": 41,
+    "Question": "What are the key differences between Python lists and tuples?"
+  },
+  {
+    "ID": 42,
+    "Question": "What is the capital of the country Japan?"
+  },
+  {
+    "ID": 43,
+    "Question": "Command for committing staged changes?"
+  },
+  {
+    "ID": 44,
+    "Question": "Query for retrieving all columns and rows in the 'users' table."
+  },
+  {
+    "ID": 45,
+    "Question": "How can I use a Dockerfile to build an image?"
+  },
+  {
+    "ID": 46,
+    "Question": "Starting a Flask app from the command line."
+  },
+  {
+    "ID": 47,
+    "Question": "What part of the cell generates most of its ATP supply?"
+  },
+  {
+    "ID": 48,
+    "Question": "What is the atomic number of Oxygen?"
+  },
+  {
+    "ID": 49,
+    "Question": "Who discovered penicillin?"
+  },
+  {
+    "ID": 50,
+    "Question": "How do you reverse a string in JavaScript?"
+  },
+  {
+    "ID": 51,
+    "Question": "What is the term for the biological mechanism enabling vegetation to synthesize its own nourishment?"
+  },
+  {
+    "ID": 52,
+    "Question": "Can you identify the method green organisms utilize to generate sustenance?"
+  },
+  {
+    "ID": 53,
+    "Question": "By what means do flora create their sustenance from raw materials?"
+  },
+  {
+    "ID": 54,
+    "Question": "Describe the procedure where botanical life produces its essential nutrients."
+  },
+  {
+    "ID": 55,
+    "Question": "The way plants produce their organic compounds is called what?"
+  },
+  {
+    "ID": 56,
+    "Question": "Which scientific phenomenon accounts for how plants sustain themselves by manufacturing their own provisions?"
+  },
+  {
+    "ID": 57,
+    "Question": "How do you install a package using pip in Python?"
+  },
+  {
+    "ID": 58,
+    "Question": "What is the command to add a new library to a Python environment?"
+  },
+  {
+    "ID": 59,
+    "Question": "How can I install a package like 'requests' in Python?"
+  },
+  {
+    "ID": 60,
+    "Question": "What is the syntax for 'pip install'?"
+  },
+  {
+    "ID": 61,
+    "Question": "How do you run a Docker container from an image?"
+  },
+  {
+    "ID": 62,
+    "Question": "What is the 'docker run' command used for?"
+  },
+  {
+    "ID": 63,
+    "Question": "What is the command to start a new container in Docker?"
+  },
+  {
+    "ID": 64,
+    "Question": "How can I launch an interactive shell within a Docker container?"
+  },
+  {
+    "ID": 65,
+    "Question": "How do you create a new branch in Git?"
+  },
+  {
+    "ID": 66,
+    "Question": "What is the command to make a new Git branch?"
+  },
+  {
+    "ID": 67,
+    "Question": "What is 'git checkout -b' used for?"
+  },
+  {
+    "ID": 68,
+    "Question": "How can I start a new line of development in my Git repository?"
+  },
+  {
+    "ID": 69,
+    "Question": "What is the capital of Australia?"
+  },
+  {
+    "ID": 70,
+    "Question": "Name the capital city of Australia."
+  },
+  {
+    "ID": 71,
+    "Question": "Which city serves as Australia's capital?"
+  },
+  {
+    "ID": 72,
+    "Question": "How do you filter records in a SQL query?"
+  },
+  {
+    "ID": 73,
+    "Question": "What is the purpose of the WHERE clause in SQL?"
+  },
+  {
+    "ID": 74,
+    "Question": "How can you retrieve specific rows from a database table?"
+  },
+  {
+    "ID": 75,
+    "Question": "What is the syntax for conditional selection in SQL?"
+  },
+  {
+    "ID": 76,
+    "Question": "Explain the concept of machine learning."
+  },
+  {
+    "ID": 77,
+    "Question": "What does it mean for a computer to 'learn from data'?"
+  },
+  {
+    "ID": 78,
+    "Question": "Describe the field of machine learning."
+  },
+  {
+    "ID": 79,
+    "Question": "What is the core idea behind machine learning algorithms?"
+  },
+  {
+    "ID": 80,
+    "Question": "How do you open and read a file in Python?"
+  },
+  {
+    "ID": 81,
+    "Question": "What is the 'with open(...) as f:' syntax for in Python?"
+  },
+  {
+    "ID": 82,
+    "Question": "How can I read the contents of a text file using Python?"
+  },
+  {
+    "ID": 83,
+    "Question": "What is the standard way to handle files in Python to ensure they are closed?"
+  },
+  {
+    "ID": 84,
+    "Question": "What is the difference between 'let', 'const', and 'var' in JavaScript?"
+  },
+  {
+    "ID": 85,
+    "Question": "When should I use 'let' versus 'const' in JavaScript?"
+  },
+  {
+    "ID": 86,
+    "Question": "Explain variable declarations in modern JavaScript."
+  },
+  {
+    "ID": 87,
+    "Question": "What are the scopes of 'var', 'let', and 'const'?"
+  },
+  {
+    "ID": 88,
+    "Question": "How do you center a div horizontally in CSS?"
+  },
+  {
+    "ID": 89,
+    "Question": "What is the best way to center an element using Flexbox?"
+  },
+  {
+    "ID": 90,
+    "Question": "How can I center an element both vertically and horizontally in CSS?"
+  },
+  {
+    "ID": 91,
+    "Question": "What CSS properties are used for centering content?"
+  },
+  {
+    "ID": 92,
+    "Question": "How do you add a new row to a table in SQL?"
+  },
+  {
+    "ID": 93,
+    "Question": "What is the 'INSERT INTO' statement for in SQL?"
+  },
+  {
+    "ID": 94,
+    "Question": "Write a SQL query to add a new user to the 'users' table."
+  },
+  {
+    "ID": 95,
+    "Question": "What is the syntax for inserting data into a database?"
+  },
+  {
+    "ID": 96,
+    "Question": "What is the speed of light in a vacuum?"
+  },
+  {
+    "ID": 97,
+    "Question": "How fast does light travel?"
+  },
+  {
+    "ID": 98,
+    "Question": "What is the constant 'c' in physics?"
+  },
+  {
+    "ID": 99,
+    "Question": "What is the universally accepted value for the speed of light?"
+  },
+  {
+    "ID": 100,
+    "Question": "What is the largest ocean on Earth?"
+  },
+  {
+    "ID": 101,
+    "Question": "Name the world's biggest ocean."
+  },
+  {
+    "ID": 102,
+    "Question": "Which ocean covers more area than any other?"
+  },
+  {
+    "ID": 103,
+    "Question": "How do you upload local commits to a remote repository in Git?"
+  },
+  {
+    "ID": 104,
+    "Question": "What is the command to push changes in Git?"
+  },
+  {
+    "ID": 105,
+    "Question": "What does 'git push origin main' do?"
+  },
+  {
+    "ID": 106,
+    "Question": "How can I synchronize my local branch with the remote?"
+  },
+  {
+    "ID": 107,
+    "Question": "What is a list comprehension in Python?"
+  },
+  {
+    "ID": 108,
+    "Question": "How do you create a list from another list in a single line of Python code?"
+  },
+  {
+    "ID": 109,
+    "Question": "Explain the syntax of list comprehensions in Python."
+  },
+  {
+    "ID": 110,
+    "Question": "How do you get the current status of your Git repository?"
+  },
+  {
+    "ID": 111,
+    "Question": "What does the 'git status' command do?"
+  },
+  {
+    "ID": 112,
+    "Question": "How can I see which files are staged, unstaged, or untracked in Git?"
+  },
+  {
+    "ID": 113,
+    "Question": "What is a data structure?"
+  },
+  {
+    "ID": 114,
+    "Question": "Define the term 'data structure' in computer science."
+  },
+  {
+    "ID": 115,
+    "Question": "What is the purpose of using data structures?"
+  },
+  {
+    "ID": 116,
+    "Question": "What is the difference between an array and a linked list?"
+  },
+  {
+    "ID": 117,
+    "Question": "Contrast arrays and linked lists."
+  },
+  {
+    "ID": 118,
+    "Question": "When would you use a linked list over an array?"
+  },
+  {
+    "ID": 119,
+    "Question": "Who painted the Mona Lisa?"
+  },
+  {
+    "ID": 120,
+    "Question": "Which artist is famous for creating the Mona Lisa?"
+  },
+  {
+    "ID": 121,
+    "Question": "How do you define a function in Python?"
+  },
+  {
+    "ID": 122,
+    "Question": "What is the syntax for creating a function in Python?"
+  },
+  {
+    "ID": 123,
+    "Question": "How do you use the 'def' keyword in Python?"
+  },
+  {
+    "ID": 124,
+    "Question": "What is recursion?"
+  },
+  {
+    "ID": 125,
+    "Question": "Explain the concept of a recursive function."
+  },
+  {
+    "ID": 126,
+    "Question": "What is a base case in recursion?"
+  },
+  {
+    "ID": 127,
+    "Question": "What is a 'div' tag in HTML?"
+  },
+  {
+    "ID": 128,
+    "Question": "What is the purpose of the 'div' element in HTML?"
+  },
+  {
+    "ID": 129,
+    "Question": "How is a 'div' used for layout in web design?"
+  },
+  {
+    "ID": 130,
+    "Question": "What is the capital of Canada?"
+  },
+  {
+    "ID": 131,
+    "Question": "Name the capital city of Canada."
+  },
+  {
+    "ID": 132,
+    "Question": "How do you join two tables in SQL?"
+  },
+  {
+    "ID": 133,
+    "Question": "What is the purpose of the JOIN clause in SQL?"
+  },
+  {
+    "ID": 134,
+    "Question": "Explain how to perform an INNER JOIN in SQL."
+  },
+  {
+    "ID": 135,
+    "Question": "What is the Pythagorean theorem?"
+  },
+  {
+    "ID": 136,
+    "Question": "State the formula for the Pythagorean theorem."
+  },
+  {
+    "ID": 137,
+    "Question": "What is the relationship between the sides of a right-angled triangle?"
+  },
+  {
+    "ID": 138,
+    "Question": "How do you handle exceptions in Python?"
+  },
+  {
+    "ID": 139,
+    "Question": "What is a 'try...except' block in Python?"
+  },
+  {
+    "ID": 140,
+    "Question": "Explain error handling in Python."
+  },
+  {
+    "ID": 141,
+    "Question": "What is DNA?"
+  },
+  {
+    "ID": 142,
+    "Question": "What does DNA stand for?"
+  },
+  {
+    "ID": 143,
+    "Question": "What is the role of DNA in genetics?"
+  },
+  {
+    "ID": 144,
+    "Question": "How do you add a file to the staging area in Git?"
+  },
+  {
+    "ID": 145,
+    "Question": "What is the 'git add' command for?"
+  },
+  {
+    "ID": 146,
+    "Question": "How do you stage changes for a commit in Git?"
+  },
+  {
+    "ID": 147,
+    "Question": "What is an algorithm?"
+  },
+  {
+    "ID": 148,
+    "Question": "Define the term 'algorithm' in the context of computer science."
+  },
+  {
+    "ID": 149,
+    "Question": "What are the characteristics of a good algorithm?"
+  },
+  {
+    "ID": 150,
+    "Question": "What is React?"
+  },
+  {
+    "ID": 151,
+    "Question": "What is React used for in web development?"
+  },
+  {
+    "ID": 152,
+    "Question": "Explain the purpose of the React library."
+  },
+  {
+    "ID": 153,
+    "Question": "Who was the first person to walk on the moon?"
+  },
+  {
+    "ID": 154,
+    "Question": "Name the astronaut who first stepped on the lunar surface."
+  },
+  {
+    "ID": 155,
+    "Question": "How do you create a class in Python?"
+  },
+  {
+    "ID": 156,
+    "Question": "What is the syntax for defining a class in Python?"
+  },
+  {
+    "ID": 157,
+    "Question": "Explain the use of the 'class' keyword in Python."
+  },
+  {
+    "ID": 158,
+    "Question": "What is the CSS box model?"
+  },
+  {
+    "ID": 159,
+    "Question": "Explain the components of the CSS box model."
+  },
+  {
+    "ID": 160,
+    "Question": "What is the difference between margin and padding in CSS?"
+  },
+  {
+    "ID": 161,
+    "Question": "What are Newton's laws of motion?"
+  },
+  {
+    "ID": 162,
+    "Question": "List Newton's three laws of motion."
+  },
+  {
+    "ID": 163,
+    "Question": "Explain the law of inertia."
+  },
+  {
+    "ID": 164,
+    "Question": "What is the capital of Germany?"
+  },
+  {
+    "ID": 165,
+    "Question": "Name Germany's capital city."
+  },
+  {
+    "ID": 166,
+    "Question": "How do you list running Docker containers?"
+  },
+  {
+    "ID": 167,
+    "Question": "What is the command to see all active containers in Docker?"
+  },
+  {
+    "ID": 168,
+    "Question": "How can I check which Docker containers are currently running?"
+  },
+  {
+    "ID": 169,
+    "Question": "What is a Promise in JavaScript?"
+  },
+  {
+    "ID": 170,
+    "Question": "Explain how Promises work in asynchronous JavaScript."
+  },
+  {
+    "ID": 171,
+    "Question": "What are the states of a JavaScript Promise?"
+  },
+  {
+    "ID": 172,
+    "Question": "What is a neural network?"
+  },
+  {
+    "ID": 173,
+    "Question": "Explain the concept of a neural network in machine learning."
+  },
+  {
+    "ID": 174,
+    "Question": "What are the basic components of a neural network?"
+  },
+  {
+    "ID": 175,
+    "Question": "How do you write a comment in Python?"
+  },
+  {
+    "ID": 176,
+    "Question": "What character is used to start a single-line comment in Python?"
+  },
+  {
+    "ID": 177,
+    "Question": "How do you create multi-line comments in Python?"
+  },
+  {
+    "ID": 178,
+    "Question": "What is Big O notation?"
+  },
+  {
+    "ID": 179,
+    "Question": "What does Big O notation represent in computer science?"
+  },
+  {
+    "ID": 180,
+    "Question": "Why is Big O notation important for analyzing algorithms?"
+  },
+  {
+    "ID": 181,
+    "Question": "What is the difference between supervised and unsupervised learning?"
+  },
+  {
+    "ID": 182,
+    "Question": "Contrast supervised and unsupervised machine learning."
+  },
+  {
+    "ID": 183,
+    "Question": "What is an example of a supervised learning problem?"
+  },
+  {
+    "ID": 184,
+    "Question": "What is the capital of Italy?"
+  },
+  {
+    "ID": 185,
+    "Question": "Name the capital city of Italy."
+  },
+  {
+    "ID": 186,
+    "Question": "How do you delete a table in SQL?"
+  },
+  {
+    "ID": 187,
+    "Question": "What is the 'DROP TABLE' command in SQL?"
+  },
+  {
+    "ID": 188,
+    "Question": "What is the SQL syntax for removing a table from a database?"
+  },
+  {
+    "ID": 189,
+    "Question": "Who wrote the novel '1984'?"
+  },
+  {
+    "ID": 190,
+    "Question": "Which author is credited with writing 'Nineteen Eighty-Four'?"
+  },
+  {
+    "ID": 191,
+    "Question": "What is a lambda function in Python?"
+  },
+  {
+    "ID": 192,
+    "Question": "Explain anonymous functions in Python."
+  },
+  {
+    "ID": 193,
+    "Question": "How do you use the 'lambda' keyword in Python?"
+  },
+  {
+    "ID": 194,
+    "Question": "What is the purpose of an API?"
+  },
+  {
+    "ID": 195,
+    "Question": "What does API stand for?"
+  },
+  {
+    "ID": 196,
+    "Question": "How do APIs enable different software systems to communicate?"
+  },
+  {
+    "ID": 197,
+    "Question": "What is the chemical symbol for gold?"
+  },
+  {
+    "ID": 198,
+    "Question": "Which element is represented by 'Au' on the periodic table?"
+  },
+  {
+    "ID": 199,
+    "Question": "How do you merge branches in Git?"
+  },
+  {
+    "ID": 200,
+    "Question": "What is the 'git merge' command used for?"
+  },
+  {
+    "ID": 201,
+    "Question": "How do you integrate changes from one branch into another in Git?"
+  },
+  {
+    "ID": 202,
+    "Question": "What is a dictionary in Python?"
+  },
+  {
+    "ID": 203,
+    "Question": "Explain Python's dictionary data structure."
+  },
+  {
+    "ID": 204,
+    "Question": "How do you create a dictionary in Python?"
+  },
+  {
+    "ID": 205,
+    "Question": "What is cloud computing?"
+  },
+  {
+    "ID": 206,
+    "Question": "Define cloud computing."
+  },
+  {
+    "ID": 207,
+    "Question": "What are the main service models of cloud computing (IaaS, PaaS, SaaS)?"
+  },
+  {
+    "ID": 208,
+    "Question": "What is the capital of Egypt?"
+  },
+  {
+    "ID": 209,
+    "Question": "Name the capital city of Egypt."
+  },
+  {
+    "ID": 210,
+    "Question": "What is the Document Object Model (DOM)?"
+  },
+  {
+    "ID": 211,
+    "Question": "Explain the DOM in the context of web development."
+  },
+  {
+    "ID": 212,
+    "Question": "How does JavaScript interact with the DOM?"
+  },
+  {
+    "ID": 213,
+    "Question": "What is the law of conservation of energy?"
+  },
+  {
+    "ID": 214,
+    "Question": "Explain the first law of thermodynamics."
+  },
+  {
+    "ID": 215,
+    "Question": "What is the principle that energy cannot be created or destroyed?"
+  },
+  {
+    "ID": 216,
+    "Question": "How do you loop through a list in Python?"
+  },
+  {
+    "ID": 217,
+    "Question": "What is a 'for' loop in Python?"
+  },
+  {
+    "ID": 218,
+    "Question": "Show an example of iterating over a list in Python."
+  },
+  {
+    "ID": 219,
+    "Question": "How do you stop a Docker container?"
+  },
+  {
+    "ID": 220,
+    "Question": "What is the command to halt a running container in Docker?"
+  },
+  {
+    "ID": 221,
+    "Question": "What is the function of 'docker stop'?"
+  },
+  {
+    "ID": 222,
+    "Question": "What is JSON?"
+  },
+  {
+    "ID": 223,
+    "Question": "What does JSON stand for?"
+  },
+  {
+    "ID": 224,
+    "Question": "What is JSON used for in web applications?"
+  },
+  {
+    "ID": 225,
+    "Question": "What is the capital of Brazil?"
+  },
+  {
+    "ID": 226,
+    "Question": "Name Brazil's capital city."
+  },
+  {
+    "ID": 227,
+    "Question": "How do you use the 'UPDATE' statement in SQL?"
+  },
+  {
+    "ID": 228,
+    "Question": "What is the syntax for modifying existing records in a SQL table?"
+  },
+  {
+    "ID": 229,
+    "Question": "How do you change a value in a specific row in SQL?"
+  },
+  {
+    "ID": 230,
+    "Question": "Who invented the telephone?"
+  },
+  {
+    "ID": 231,
+    "Question": "Which inventor is credited with creating the first practical telephone?"
+  },
+  {
+    "ID": 232,
+    "Question": "What is the difference between HTTP and HTTPS?"
+  },
+  {
+    "ID": 233,
+    "Question": "Explain the security aspect of HTTPS compared to HTTP."
+  },
+  {
+    "ID": 234,
+    "Question": "What does the 'S' in HTTPS stand for?"
+  },
+  {
+    "ID": 235,
+    "Question": "How do you import a module in Python?"
+  },
+  {
+    "ID": 236,
+    "Question": "What is the 'import' statement in Python used for?"
+  },
+  {
+    "ID": 237,
+    "Question": "Show the syntax for importing a library like 'math' in Python."
+  },
+  {
+    "ID": 238,
+    "Question": "What is the planet Mars known as?"
+  },
+  {
+    "ID": 239,
+    "Question": "Which planet is called the Red Planet?"
+  },
+  {
+    "ID": 240,
+    "Question": "What are cookies in the context of web browsers?"
+  },
+  {
+    "ID": 241,
+    "Question": "Explain the purpose of HTTP cookies."
+  },
+  {
+    "ID": 242,
+    "Question": "How are cookies used to maintain session information?"
+  },
+  {
+    "ID": 243,
+    "Question": "How do you check the type of a variable in Python?"
+  },
+  {
+    "ID": 244,
+    "Question": "What does the 'type()' function do in Python?"
+  },
+  {
+    "ID": 245,
+    "Question": "How can I find out the data type of a Python object?"
+  },
+  {
+    "ID": 246,
+    "Question": "What is the capital of Argentina?"
+  },
+  {
+    "ID": 247,
+    "Question": "Name the capital of Argentina."
+  },
+  {
+    "ID": 248,
+    "Question": "How do you clone a repository from GitHub?"
+  },
+  {
+    "ID": 249,
+    "Question": "What is the 'git clone' command for?"
+  },
+  {
+    "ID": 250,
+    "Question": "How do you download a copy of a remote Git repository?"
+  },
+  {
+    "ID": 251,
+    "Question": "What is the difference between == and 'is' in Python?"
+  },
+  {
+    "ID": 252,
+    "Question": "When should you use 'is' instead of == in Python?"
+  },
+  {
+    "ID": 253,
+    "Question": "Explain the distinction between equality and identity in Python."
+  },
+  {
+    "ID": 254,
+    "Question": "What is the main component of Earth's atmosphere?"
+  },
+  {
+    "ID": 255,
+    "Question": "Which gas is most abundant in the Earth's atmosphere?"
+  },
+  {
+    "ID": 256,
+    "Question": "What is SQL?"
+  },
+  {
+    "ID": 257,
+    "Question": "What does SQL stand for?"
+  },
+  {
+    "ID": 258,
+    "Question": "What is SQL used for?"
+  },
+  {
+    "ID": 259,
+    "Question": "What is the capital of Russia?"
+  },
+  {
+    "ID": 260,
+    "Question": "Name Russia's capital city."
+  },
+  {
+    "ID": 261,
+    "Question": "How does garbage collection work in Python?"
+  },
+  {
+    "ID": 262,
+    "Question": "Explain memory management in Python."
+  },
+  {
+    "ID": 263,
+    "Question": "What is reference counting in Python?"
+  },
+  {
+    "ID": 264,
+    "Question": "What is responsive web design?"
+  },
+  {
+    "ID": 265,
+    "Question": "Explain the principles of responsive design."
+  },
+  {
+    "ID": 266,
+    "Question": "How do you make a website mobile-friendly?"
+  },
+  {
+    "ID": 267,
+    "Question": "What is the largest animal on Earth?"
+  },
+  {
+    "ID": 268,
+    "Question": "Name the biggest animal in the world."
+  },
+  {
+    "ID": 269,
+    "Question": "How do you remove a Docker image?"
+  },
+  {
+    "ID": 270,
+    "Question": "What is the 'docker rmi' command used for?"
+  },
+  {
+    "ID": 271,
+    "Question": "What is the command to delete a Docker image from your local machine?"
+  },
+  {
+    "ID": 272,
+    "Question": "What is the Global Interpreter Lock (GIL) in Python?"
+  },
+  {
+    "ID": 273,
+    "Question": "Explain the Python GIL."
+  },
+  {
+    "ID": 274,
+    "Question": "How does the GIL affect multi-threading in Python?"
+  },
+  {
+    "ID": 275,
+    "Question": "How do you handle asynchronous operations in JavaScript?"
+  },
+  {
+    "ID": 276,
+    "Question": "What are 'async' and 'await' in JavaScript?"
+  },
+  {
+    "ID": 277,
+    "Question": "Explain the use of async/await for handling Promises."
+  },
+  {
+    "ID": 278,
+    "Question": "What is the capital of the United Kingdom?"
+  },
+  {
+    "ID": 279,
+    "Question": "Name the capital city of the UK."
+  },
+  {
+    "ID": 280,
+    "Question": "How do you use the 'GROUP BY' clause in SQL?"
+  },
+  {
+    "ID": 281,
+    "Question": "What is the purpose of grouping rows in a SQL query?"
+  },
+  {
+    "ID": 282,
+    "Question": "Explain how to use aggregate functions with GROUP BY."
+  },
+  {
+    "ID": 283,
+    "Question": "Who wrote 'The Great Gatsby'?"
+  },
+  {
+    "ID": 284,
+    "Question": "Which author penned the novel 'The Great Gatsby'?"
+  },
+  {
+    "ID": 285,
+    "Question": "What is a decorator in Python?"
+  },
+  {
+    "ID": 286,
+    "Question": "Explain how decorators work in Python."
+  },
+  {
+    "ID": 287,
+    "Question": "What is the syntax for creating and using a decorator?"
+  },
+  {
+    "ID": 288,
+    "Question": "What is the tallest mountain in the world?"
+  },
+  {
+    "ID": 289,
+    "Question": "Name the highest peak on Earth."
+  },
+  {
+    "ID": 290,
+    "Question": "What is a constructor in object-oriented programming?"
+  },
+  {
+    "ID": 291,
+    "Question": "What is the purpose of the '__init__' method in a Python class?"
+  },
+  {
+    "ID": 292,
+    "Question": "Explain the role of a constructor in initializing an object."
+  },
+  {
+    "ID": 293,
+    "Question": "How do you revert the last commit in Git?"
+  },
+  {
+    "ID": 294,
+    "Question": "What does 'git revert' do?"
+  },
+  {
+    "ID": 295,
+    "Question": "How can I undo the most recent commit in Git without deleting it from history?"
+  },
+  {
+    "ID": 296,
+    "Question": "What is the capital of Spain?"
+  },
+  {
+    "ID": 297,
+    "Question": "Name Spain's capital city."
+  },
+  {
+    "ID": 298,
+    "Question": "What is the difference between a library and a framework?"
+  },
+  {
+    "ID": 299,
+    "Question": "Contrast libraries and frameworks in software development."
+  },
+  {
+    "ID": 300,
+    "Question": "What is the concept of 'inversion of control'?"
+  }
+]

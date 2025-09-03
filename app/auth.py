@@ -11,11 +11,7 @@ login_schema = LoginSchema()
 @auth_bp.route('/login', methods=['POST'])
 @limiter.limit("5 per minute")
 def login():
-    """
-    Authenticates the admin user and returns a JWT access token.
-    """
     try:
-        # Validate request body
         data = login_schema.load(request.get_json())
     except ValidationError as err:
         return jsonify(err.messages), 400
@@ -23,7 +19,6 @@ def login():
     username = data['username']
     password = data['password']
 
-    # Check credentials
     admin_user = current_app.config['ADMIN_USERNAME']
     admin_pass = current_app.config['ADMIN_PASSWORD']
 

@@ -12,6 +12,5 @@ EXPOSE 5000
 
 ENV FLASK_APP=run.py
 ENV FLASK_ENV=production
-ENV GUNICORN_WORKERS=2
 
 CMD ["gunicorn", "--workers", "2", "--bind", "0.0.0.0:5000", "run:app"]

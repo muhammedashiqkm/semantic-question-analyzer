@@ -1,0 +1,98 @@
+2025-09-03 11:38:57,066 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:48]
+2025-09-03 11:38:57,101 ERROR: FATAL: Google AI Configuration Error: name 'current_app' is not defined [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:66]
+2025-09-03 11:41:57,752 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:49]
+2025-09-03 11:41:57,770 INFO: Google AI (Gemini) SDK configured. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:65]
+2025-09-03 11:41:57,773 INFO: OpenAI API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:72]
+2025-09-03 11:41:57,774 WARNING: DEEPSEEK_API_KEY not found. DeepSeek provider will be unavailable. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:75]
+2025-09-03 11:44:04,365 ERROR: Exception on /login [POST] [in C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask\app.py:1414]
+Traceback (most recent call last):
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask\app.py", line 2190, in wsgi_app
+    response = self.full_dispatch_request()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask\app.py", line 1486, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_cors\extension.py", line 176, in wrapped_function
+    return cors_after_request(app.make_response(f(*args, **kwargs)))
+                                                ^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask\app.py", line 1484, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask\app.py", line 1469, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_limiter\extension.py", line 1310, in __inner
+    self.limiter._check_request_limit(
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_limiter\extension.py", line 1187, in _check_request_limit
+    raise e
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_limiter\extension.py", line 1169, in _check_request_limit
+    self.__evaluate_limits(endpoint, all_limits)
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\flask_limiter\extension.py", line 1101, in __evaluate_limits
+    if not method(lim.limit, *args, **kwargs):
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\limits\strategies.py", line 148, in hit
+    self.storage.incr(
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\limits\storage\base.py", line 25, in inner
+    return fn(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\limits\storage\memcached.py", line 184, in incr
+    value := self.call_memcached_func(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\limits\storage\memcached.py", line 124, in call_memcached_func
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\pymemcache\client\base.py", line 1556, in incr
+    return client.incr(key, value, noreply=noreply)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\pymemcache\client\base.py", line 827, in incr
+    results = self._misc_cmd([cmd], b"incr", noreply)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\pymemcache\client\base.py", line 1275, in _misc_cmd
+    self._connect()
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\site-packages\pymemcache\client\base.py", line 389, in _connect
+    info = s.getaddrinfo(host, port, s.AF_UNSPEC, s.SOCK_STREAM, s.IPPROTO_TCP)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\ashiq\AppData\Local\Programs\Python\Python312\Lib\socket.py", line 963, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+socket.gaierror: [Errno 11001] getaddrinfo failed
+2025-09-03 11:44:04,574 ERROR: Internal Server Error: 500 Internal Server Error: The server encountered an internal error and was unable to complete your request. Either the server is overloaded or there is an error in the application. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:106]
+2025-09-03 11:44:40,612 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:49]
+2025-09-03 11:44:40,615 INFO: Google AI (Gemini) SDK configured. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:65]
+2025-09-03 11:44:40,615 INFO: OpenAI API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:72]
+2025-09-03 11:44:40,616 WARNING: DEEPSEEK_API_KEY not found. DeepSeek provider will be unavailable. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:75]
+2025-09-03 11:52:22,991 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:49]
+2025-09-03 11:52:22,993 INFO: Google AI (Gemini) SDK configured. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:65]
+2025-09-03 11:52:22,994 INFO: OpenAI API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:72]
+2025-09-03 11:52:22,994 WARNING: DEEPSEEK_API_KEY not found. DeepSeek provider will be unavailable. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:75]
+2025-09-03 11:55:06,701 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:49]
+2025-09-03 11:55:06,704 INFO: Google AI (Gemini) SDK configured. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:65]
+2025-09-03 11:55:06,706 INFO: OpenAI API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:72]
+2025-09-03 11:55:06,707 WARNING: DEEPSEEK_API_KEY not found. DeepSeek provider will be unavailable. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:75]
+2025-09-03 11:58:00,684 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:49]
+2025-09-03 11:58:00,687 INFO: Google AI (Gemini) SDK configured. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:65]
+2025-09-03 11:58:00,688 INFO: OpenAI API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:72]
+2025-09-03 11:58:00,688 INFO: DeepSeek API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:77]
+2025-09-03 12:16:08,329 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:49]
+2025-09-03 12:16:08,331 INFO: Google AI (Gemini) SDK configured. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:65]
+2025-09-03 12:16:08,331 INFO: OpenAI API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:72]
+2025-09-03 12:16:08,333 INFO: DeepSeek API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:77]
+2025-09-03 12:39:19,686 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:49]
+2025-09-03 12:39:19,689 INFO: Google AI (Gemini) SDK configured. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:65]
+2025-09-03 12:39:19,689 INFO: OpenAI API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:72]
+2025-09-03 12:39:19,690 INFO: DeepSeek API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:77]
+2025-09-03 16:45:10,958 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:49]
+2025-09-03 16:45:10,961 INFO: Google AI (Gemini) SDK configured. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:65]
+2025-09-03 16:45:10,962 INFO: OpenAI API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:72]
+2025-09-03 16:45:10,963 INFO: DeepSeek API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:77]
+2025-09-03 16:47:26,781 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:49]
+2025-09-03 16:47:26,783 INFO: Google AI (Gemini) SDK configured. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:65]
+2025-09-03 16:47:26,784 INFO: OpenAI API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:72]
+2025-09-03 16:47:26,784 INFO: DeepSeek API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:77]
+2025-09-03 20:56:53,677 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:49]
+2025-09-03 20:56:53,680 INFO: Google AI (Gemini) SDK configured. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:65]
+2025-09-03 20:56:53,681 INFO: OpenAI API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:72]
+2025-09-03 20:56:53,682 INFO: DeepSeek API Key found. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:77]
+2025-09-03 21:09:24,248 INFO: Application startup [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:53]
+2025-09-03 21:09:24,251 INFO: Google AI (Gemini) SDK configured. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:69]
+2025-09-03 21:09:24,763 INFO: OpenAI client initialized. [in D:\Meshilogic\semantic-question-analyzer\app\__init__.py:81]

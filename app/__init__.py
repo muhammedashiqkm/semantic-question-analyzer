@@ -9,6 +9,8 @@ from flask_marshmallow import Marshmallow
 from flask_cors import CORS
 from config import Config
 import google.generativeai as genai
+from flask import Flask, jsonify, current_app
+from openai import OpenAI # <-- Added
 
 # --- Initialize Extensions ---
 jwt = JWTManager()
@@ -18,6 +20,9 @@ limiter = Limiter(
     key_func=get_remote_address
 )
 
+openai_client = None 
+deepseek_client = None 
+
 # --- Application Factory ---
 def create_app():
     """Create and configure the Flask application."""
@@ -25,19 +30,25 @@ def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
     
-    # --- Logging Configuration ---
+    
     if not app.debug and not app.testing:
         os.makedirs("logs", exist_ok=True)
-        file_handler = RotatingFileHandler(
-            'logs/app.log', 
-            maxBytes=10240, 
-            backupCount=10
-        )
-        file_handler.setFormatter(logging.Formatter(
+        formatter = logging.Formatter(
             '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
-        ))
+        )
+        
+        # File Handler
+        file_handler = RotatingFileHandler('logs/app.log', maxBytes=10240, backupCount=10)
+        file_handler.setFormatter(formatter)
         file_handler.setLevel(logging.INFO)
+        
+        # Console/stdout Handler
+        stream_handler = logging.StreamHandler()
+        stream_handler.setFormatter(formatter)
+        stream_handler.setLevel(logging.INFO)
+        
         app.logger.addHandler(file_handler)
+        app.logger.addHandler(stream_handler)
         app.logger.setLevel(logging.INFO)
         app.logger.info('Application startup')
 
@@ -47,16 +58,35 @@ def create_app():
     limiter.init_app(app)
     cors.init_app(app, origins=app.config['CORS_ORIGINS'])
 
-    # --- Configure Google AI ---
-    try:
-        api_key = app.config['GOOGLE_API_KEY']
-        if not api_key:
-            raise ValueError("GOOGLE_API_KEY not found in environment variables.")
-        genai.configure(api_key=api_key)
-        app.logger.info("Google AI SDK configured successfully.")
-    except (ValueError, KeyError) as e:
-        app.logger.error(f"FATAL: Google AI Configuration Error: {e}")
-        raise
+    # --- Configure AI SDKs & Initialize Clients --- # <-- Changed
+    with app.app_context():
+        try:
+            google_api_key = current_app.config.get('GOOGLE_API_KEY')
+            if not google_api_key:
+                app.logger.warning("GOOGLE_API_KEY not found. Gemini provider will be unavailable.")
+            else:
+                genai.configure(api_key=google_api_key)
+                app.logger.info("Google AI (Gemini) SDK configured.")
+        except Exception as e:
+            app.logger.error(f"FATAL: Google AI Configuration Error: {e}")
+
+        # --- Client Instantiation Logic --- # <-- Changed
+        global openai_client, deepseek_client
+        
+        openai_api_key = current_app.config.get('OPENAI_API_KEY')
+        if not openai_api_key:
+            app.logger.warning("OPENAI_API_KEY not found. OpenAI provider will be unavailable.")
+        else:
+            openai_client = OpenAI(api_key=openai_api_key)
+            app.logger.info("OpenAI client initialized.")
+
+        deepseek_api_key = current_app.config.get('DEEPSEEK_API_KEY')
+        if not deepseek_api_key:
+            app.logger.warning("DEEPSEEK_API_KEY not found. DeepSeek provider will be unavailable.")
+        else:
+            deepseek_client = OpenAI(api_key=deepseek_api_key, base_url="https://api.deepseek.com")
+            app.logger.info("DeepSeek client initialized.")
+
 
     # --- Register Blueprints ---
     from .auth import auth_bp
@@ -66,35 +96,24 @@ def create_app():
     app.register_blueprint(api_bp)
 
     # --- Custom Error Handlers ---
-    
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
-        """Custom JSON response for expired JWT tokens."""
         return jsonify({"error": "Access token has expired"}), 401
 
     @jwt.invalid_token_loader
     def invalid_token_callback(error):
-        """Custom JSON response for invalid JWT tokens."""
         return jsonify({"error": "Invalid access token"}), 401
 
     @jwt.unauthorized_loader
     def missing_token_callback(error):
-        """Custom JSON response for requests missing the Authorization header."""
         return jsonify({"error": "Authorization header is missing"}), 401
 
     @app.errorhandler(404)
     def not_found_error(error):
-        """Custom JSON response for 404 Not Found errors."""
         return jsonify({"error": "This resource was not found"}), 404
-
-    @app.errorhandler(405)
-    def method_not_allowed_error(error):
-        """Custom JSON response for 405 Method Not Allowed errors."""
-        return jsonify({"error": "The method is not allowed for the requested URL"}), 405
 
     @app.errorhandler(500)
     def internal_server_error(error):
-        """Custom JSON response for 500 Internal Server errors."""
         app.logger.error(f"Internal Server Error: {error}")
         return jsonify({"error": "An internal server error occurred"}), 500
 
