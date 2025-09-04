@@ -2,10 +2,12 @@ import logging
 import requests
 import json
 from json import JSONDecodeError
-from flask import current_app
+from typing import List, Dict, Any, Optional
+
+from flask import current_app, Response
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
-from openai import APIStatusError, APIConnectionError
+from openai import APIStatusError, APIConnectionError, OpenAI
 from bs4 import BeautifulSoup
 from . import openai_client, deepseek_client
 
@@ -13,8 +15,13 @@ class AIServiceUnavailableError(Exception):
     """Custom exception for when an external AI service is unavailable."""
     pass
 
-def get_ai_client(provider):
-    """Returns a pre-initialized AI client for the given provider."""
+def get_ai_client(provider: str) -> Optional[OpenAI]:
+    """
+    Returns a pre-initialized AI client for the given provider.
+    
+    :param provider: The name of the AI provider ('openai' or 'deepseek').
+    :return: An initialized OpenAI client instance or None.
+    """
     if provider == 'openai':
         if not openai_client:
             raise ValueError("OpenAI client is not initialized. Check API key.")
@@ -25,14 +32,24 @@ def get_ai_client(provider):
         return deepseek_client
     return None
 
-def clean_html(raw_html):
-    """Removes HTML tags from a string."""
+def clean_html(raw_html: str) -> str:
+    """
+    Removes HTML tags from a string.
+    
+    :param raw_html: The input string containing HTML.
+    :return: The cleaned text.
+    """
     if not raw_html:
         return ""
     return BeautifulSoup(raw_html, "lxml").get_text().strip()
 
-def fetch_questions_from_url(url):
-    """Fetches and parses question data from a given URL."""
+def fetch_questions_from_url(url: str) -> Optional[List[Dict[str, Any]]]:
+    """
+    Fetches and parses question data from a given URL.
+
+    :param url: The URL to fetch data from.
+    :return: A list of dictionaries or None if an error occurs.
+    """
     try:
         response = requests.get(url, timeout=15)
         response.raise_for_status()
@@ -41,8 +58,11 @@ def fetch_questions_from_url(url):
     except requests.exceptions.RequestException as e:
         logging.error(f"Error fetching data from URL {url}: {e}")
         return None
+    except JSONDecodeError:
+        logging.error(f"Failed to decode JSON from URL {url}")
+        return None
 
-def validate_question_quality(question_text, provider, model_name):
+def validate_question_quality(question_text: str, provider: str, model_name: str) -> bool:
     """
     Uses an LLM to check if a question is valid.
     Returns ONLY a boolean: True if valid, False otherwise.
@@ -65,7 +85,10 @@ def validate_question_quality(question_text, provider, model_name):
             return result.get('is_valid', False)
 
         elif provider in ['openai', 'deepseek']:
-            client = get_ai_client(provider) 
+            client = get_ai_client(provider)
+            if not client:
+                raise ValueError(f"Could not get client for provider: {provider}")
+            
             response = client.chat.completions.create(
                 model=model_name,
                 messages=[
@@ -80,20 +103,27 @@ def validate_question_quality(question_text, provider, model_name):
         else:
             raise ValueError(f"Unsupported reasoning provider: {provider}")
 
-    
+   
     except (google_exceptions.ServiceUnavailable, google_exceptions.RetryError, APIStatusError, APIConnectionError) as e:
         logging.error(f"AI Service Unavailable (provider: {provider}) during quality check: {e}")
         raise AIServiceUnavailableError(f"The {provider} quality check service is unavailable.")
+    
+    
     except JSONDecodeError:
         logging.error(f"Failed to parse JSON from {provider} during quality check.")
         return False
-    except Exception as e:
-        logging.error(f"Failed to validate question with {provider}: {e}")
-        return False
 
 
-def get_embeddings(texts, provider, model_name):
-    """Generates embeddings for a list of texts using the specified provider."""
+
+def get_embeddings(texts: List[str], provider: str, model_name: str) -> List[List[float]]:
+    """
+    Generates embeddings for a list of texts using the specified provider.
+    
+    :param texts: A list of strings to embed.
+    :param provider: The embedding provider ('gemini' or 'openai').
+    :param model_name: The specific model name to use.
+    :return: A list of embedding vectors.
+    """
     if provider == 'gemini':
         try:
             result = genai.embed_content(
@@ -101,25 +131,23 @@ def get_embeddings(texts, provider, model_name):
                 content=texts,
                 task_type="RETRIEVAL_DOCUMENT"
             )
-            return result['embedding']
+            embedding = result['embedding']
+            return [embedding] if not isinstance(embedding[0], list) else embedding
         except (google_exceptions.ServiceUnavailable, google_exceptions.RetryError) as e:
             logging.error(f"AI Service Unavailable (provider: {provider}): {e}")
             raise AIServiceUnavailableError(f"The {provider} embedding service is unavailable.")
-        except Exception as e:
-            logging.error(f"Error generating embeddings with {provider}: {e}")
-            raise
+    
 
     elif provider == 'openai':
         try:
             client = get_ai_client('openai')
+            if not client:
+                raise ValueError("Could not get OpenAI client")
             response = client.embeddings.create(input=texts, model=model_name)
             return [item.embedding for item in response.data]
         except (APIStatusError, APIConnectionError) as e:
             logging.error(f"AI Service Unavailable (provider: {provider}): {e}")
             raise AIServiceUnavailableError(f"The {provider} embedding service is unavailable.")
-        except Exception as e:
-            logging.error(f"Error generating embeddings with {provider}: {e}")
-            raise
 
     else:
         raise ValueError(f"Unsupported embedding provider: {provider}")

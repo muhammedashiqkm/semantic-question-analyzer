@@ -1,180 +1,145 @@
+Semantic Question Similarity API
+A flexible, Flask-based API designed to perform semantic analysis on a list of questions. It leverages multiple AI providers (including Google Gemini, OpenAI, and DeepSeek) to create text embeddings and determine similarity. The API provides endpoints to check if a new question is a duplicate and to group existing questions into semantically similar clusters.
 
+The application is containerized with Docker and docker-compose for easy setup and deployment.
 
------
+Features
+Multi-Provider AI: Dynamically choose between different AI providers (e.g., Gemini, OpenAI, DeepSeek) for embedding and reasoning tasks.
 
-# Semantic Question Similarity API
+JWT Authentication: Secure endpoints using JSON Web Tokens.
 
-A Flask-based API designed to perform semantic analysis on a list of questions. It leverages Google's Generative AI (`text-embedding-004`) to create text embeddings and determine similarity. The API provides endpoints to check if a new question is a duplicate and to group existing questions into semantically similar clusters.
+Semantic Similarity Check: Compares a new question against a list from a URL to find matches.
 
-The application is containerized with Docker for easy setup and deployment.
+Question Grouping: Clusters a list of questions into groups based on semantic similarity.
 
------
+Rate Limiting: Protects against brute-force attacks on the login endpoint.
 
-## Features
+Highly Configurable: Key settings like API keys, model names, and application behavior are managed via environment variables.
 
-  * **JWT Authentication**: Secure endpoints using JSON Web Tokens.
-  * **Semantic Similarity Check**: Compares a new question against a list from a URL to find matches.
-  * **Question Grouping**: Clusters a list of questions into groups based on semantic similarity.
-  * **Rate Limiting**: Protects against brute-force attacks on the login endpoint.
-  * **Configurable**: Key settings like JWT expiration, CORS origins, and similarity thresholds can be configured via environment variables.
-  * **Dockerized**: Comes with a `Dockerfile` for a consistent and isolated production-ready environment.
+Dockerized: Comes with Dockerfile and docker-compose.yml for a consistent and isolated production-ready environment.
 
------
-
-## 🚀 Setup and Installation
-
+🚀 Setup and Installation
 Follow these steps to get the application running on your local machine using Docker.
 
-### Prerequisites
+Prerequisites
+Git
 
-  * Git
-  * Docker Desktop
+Docker Desktop (with Docker Compose)
 
-### Step 1: Clone the Repository
-
+Step 1: Clone the Repository
 First, clone the project repository to your local machine.
 
-```sh
 git clone <your-repository-url>
 cd <repository-directory>
-```
 
-### Step 2: Configure Environment Variables
+Step 2: Configure Environment Variables
+The application is configured using a .env file. Create this file in the root of the project directory by copying the example values below.
 
-The application is configured using a `.env` file. Create this file in the root of the project directory by copying the example values below.
+You must replace the placeholder values for the API keys and password with your own credentials. You only need to provide keys for the services you intend to use.
 
-**You must replace the placeholder values for `GOOGLE_API_KEY` and `ADMIN_PASSWORD` with your own credentials.**
-
-```.env
-# --- Replace with your actual production credentials ---
-GOOGLE_API_KEY="REPLACE_WITH_YOUR_REAL_GOOGLE_API_KEY"
+# --- Core Credentials (Required) ---
 ADMIN_USERNAME="webapp_admin"
 ADMIN_PASSWORD="replace_with_a_strong_and_secure_password"
-JWT_SECRET_KEY="1d1e4f5a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1"
+JWT_SECRET_KEY="a_long_random_secure_string_for_jwt_signing"
+
+# --- AI Provider API Keys (Fill in the ones you will use) ---
+GOOGLE_API_KEY="REPLACE_WITH_YOUR_GOOGLE_API_KEY"
+OPENAI_API_KEY="REPLACE_WITH_YOUR_OPENAI_API_KEY"
+DEEPSEEK_API_KEY="REPLACE_WITH_YOUR_DEEPSEEK_API_KEY"
+
+# --- AI Model Name Configuration ---
+# Set the specific model names for each provider and task
+GEMINI_EMBEDDING_MODEL="text-embedding-004"
+OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
+
+GEMINI_REASONING_MODEL="gemini-1.5-flash"
+OPENAI_REASONING_MODEL="gpt-4o"
+DEEPSEEK_REASONING_MODEL="deepseek-chat"
 
 # --- Application Behavior Settings ---
 JWT_EXPIRATION_HOURS=8
-SIMILARITY_THRESHOLD=0.90
-EMBEDDING_MODEL_NAME="text-embedding-004"
+SIMILARITY_THRESHOLD=0.85
 
-# --- CORS Settings ---
-# A comma-separated list of your frontend application URLs.
-CORS_ORIGINS="https://your-production-frontend.com,https://your-staging-frontend.com"
-```
+# --- CORS Settings (Update for your frontend) ---
+CORS_ORIGINS="http://localhost:3000,[https://your-production-frontend.com](https://your-production-frontend.com)"
 
-### Step 3: Build and Run the Docker Container
+Step 3: Build and Run with Docker Compose
+Build the Docker images and run the services using docker-compose. This will also start the memcached service required for rate limiting.
 
-Build the Docker image and then run the container. The `--env-file` flag will load the variables you just configured.
+# Build and run the containers in detached mode
+docker-compose up --build -d
 
-```sh
-# 1. Build the Docker image
-docker build -t similarity-api .
+The API will now be running and accessible at http://localhost:5000.
 
-# 2. Run the Docker container
-docker run -d -p 5000:5000 --env-file .env --name similarity-api-container similarity-api
-```
+API Request/Response Formats
+POST /login
+Request
 
-The API will now be running and accessible at `http://localhost:5000`.
+{
+  "username": "webapp_admin",
+  "password": "your_strong_password"
+}
 
------
+Response
 
-## API Endpoint Details
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
 
-All requests and responses are in JSON format. The protected endpoints require a JWT token to be sent in the `Authorization` header as a Bearer token.
+POST /check_similarity
+Request
 
-### Authentication
+{
+  "questions_url": "[https://example.com/api/questions.json](https://example.com/api/questions.json)",
+  "question": "How do I set up a Docker container?",
+  "embedding_provider": "gemini",
+  "reasoning_provider": "openai"
+}
 
-#### `POST /login`
+Response (Match Found)
 
-Authenticates a user and provides a JWT access token needed for protected endpoints.
-
-  * **Request Body**:
-    ```json
+{
+  "response": "yes",
+  "matched_questions": [
     {
-      "username": "webapp_admin",
-      "password": "your_strong_password"
+      "Question": "What are the steps to configure a Docker container?",
+      "Answer": "First, you need to create a Dockerfile..."
     }
-    ```
-  * **Success Response (200 OK)**:
-    ```json
-    {
-      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-    }
-    ```
-  * **Error Response (401 Unauthorized)**:
-    ```json
-    {
-      "error": "Bad username or password"
-    }
-    ```
+  ]
+}
 
-### Core API
+Response (No Match)
 
-**Note**: For the following endpoints, you must include the access token in the request header:
-`Authorization: Bearer <your_access_token>`
+{
+  "response": "no"
+}
 
-#### `POST /check_similarity`
+POST /group_similar_questions
+Request
 
-Checks if a new question is semantically similar to any question from a list hosted at a given URL.
+{
+  "questions_url": "[https://example.com/api/questions.json](https://example.com/api/questions.json)",
+  "embedding_provider": "openai"
+}
 
-  * **Request Body**:
-    ```json
-    {
-      "questions_url": "https://example.com/api/questions.json",
-      "question": "How do I set up a Docker container?"
-    }
-    ```
-  * **Success Response (200 OK)**:
-      * If a similar question is found:
-        ```json
-        {
-          "response": "yes",
-          "matched_questions": [
-            {
-              "Question": "What are the steps to configure a Docker container?",
-              "Answer": "First, you need to create a Dockerfile..."
-            }
-          ]
-        }
-        ```
-      * If no similar question is found:
-        ```json
-        {
-          "response": "no"
-        }
-        ```
+Response (Groups Found)
 
-#### `POST /group_similar_questions`
+{
+  "response": "yes",
+  "matched_groups": [
+    [
+      { "Question": "Question A1", "Answer": "..." },
+      { "Question": "Question A2", "Answer": "..." }
+    ],
+    [
+      { "Question": "Question B1", "Answer": "..." },
+      { "Question": "Question B2", "Answer": "..." }
+    ]
+  ]
+}
 
-Fetches all questions from a URL and groups them into clusters of semantically similar questions.
+Response (No Groups)
 
-  * **Request Body**:
-    ```json
-    {
-      "questions_url": "https://example.com/api/questions.json"
-    }
-    ```
-  * **Success Response (200 OK)**:
-      * If groups (of 2 or more) are found:
-        ```json
-        {
-          "response": "yes",
-          "matched_groups": [
-            [
-              { "Question": "Question A1", "Answer": "..." },
-              { "Question": "Question A2", "Answer": "..." }
-            ],
-            [
-              { "Question": "Question B1", "Answer": "..." },
-              { "Question": "Question B2", "Answer": "..." },
-              { "Question": "Question B3", "Answer": "..." }
-            ]
-          ]
-        }
-        ```
-      * If no groups are formed:
-        ```json
-        {
-          "response": "no"
-        }
-        ```
+{
+  "response": "no"
+}
