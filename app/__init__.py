@@ -58,7 +58,7 @@ def create_app():
     limiter.init_app(app)
     cors.init_app(app, origins=app.config['CORS_ORIGINS'])
 
-    # --- Configure AI SDKs & Initialize Clients --- # <-- Changed
+    # --- Configure AI SDKs & Initialize Clients --- #
     with app.app_context():
         try:
             google_api_key = current_app.config.get('GOOGLE_API_KEY')
