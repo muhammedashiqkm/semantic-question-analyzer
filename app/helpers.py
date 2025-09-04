@@ -1,8 +1,7 @@
-# app/helpers.py
-
 import logging
 import requests
 import json
+from json import JSONDecodeError
 from flask import current_app
 import google.generativeai as genai
 from google.api_core import exceptions as google_exceptions
@@ -44,31 +43,28 @@ def fetch_questions_from_url(url):
         return None
 
 def validate_question_quality(question_text, provider, model_name):
-    """Uses an LLM to check if a question is grammatically valid and complete."""
+    """
+    Uses an LLM to check if a question is valid.
+    Returns ONLY a boolean: True if valid, False otherwise.
+    Raises AIServiceUnavailableError if the AI service itself is down.
+    """
     system_prompt = (
         "You are an expert evaluator. Analyze the user's question. "
         "Determine if it is grammatically correct, complete, and makes logical sense. "
-        "Respond ONLY with a valid JSON object with two keys: "
-        "'is_valid' (boolean) and 'reason' (a brief string explanation)."
+        "Respond ONLY with a valid JSON object with a single key: 'is_valid' (boolean)."
     )
-    
-    if provider == 'gemini':
-        try:
+
+    try:
+        if provider == 'gemini':
             model = genai.GenerativeModel(model_name)
             response = model.generate_content(
                 f"{system_prompt}\n\nQuestion: \"{question_text}\"",
                 generation_config={"response_mime_type": "application/json"}
             )
-            return json.loads(response.text)
-        except (google_exceptions.ServiceUnavailable, google_exceptions.RetryError) as e:
-            logging.error(f"AI Service Unavailable (provider: {provider}): {e}")
-            raise AIServiceUnavailableError(f"The {provider} reasoning service is unavailable.")
-        except Exception as e:
-            logging.error(f"Failed to validate question with {provider}: {e}")
-            return {"is_valid": True, "reason": "Validator service failed; proceeding with caution."}
-    
-    elif provider in ['openai', 'deepseek']:
-        try:
+            result = json.loads(response.text)
+            return result.get('is_valid', False)
+
+        elif provider in ['openai', 'deepseek']:
             client = get_ai_client(provider) 
             response = client.chat.completions.create(
                 model=model_name,
@@ -78,16 +74,22 @@ def validate_question_quality(question_text, provider, model_name):
                 ],
                 response_format={"type": "json_object"}
             )
-            return json.loads(response.choices[0].message.content)
-        except (APIStatusError, APIConnectionError) as e:
-            logging.error(f"AI Service Unavailable (provider: {provider}): {e}")
-            raise AIServiceUnavailableError(f"The {provider} reasoning service is unavailable.")
-        except Exception as e:
-            logging.error(f"Failed to validate question with {provider}: {e}")
-            return {"is_valid": True, "reason": "Validator service failed; proceeding with caution."}
+            result = json.loads(response.choices[0].message.content)
+            return result.get('is_valid', False)
+        
+        else:
+            raise ValueError(f"Unsupported reasoning provider: {provider}")
 
-    else:
-        raise ValueError(f"Unsupported reasoning provider: {provider}")
+    
+    except (google_exceptions.ServiceUnavailable, google_exceptions.RetryError, APIStatusError, APIConnectionError) as e:
+        logging.error(f"AI Service Unavailable (provider: {provider}) during quality check: {e}")
+        raise AIServiceUnavailableError(f"The {provider} quality check service is unavailable.")
+    except JSONDecodeError:
+        logging.error(f"Failed to parse JSON from {provider} during quality check.")
+        return False
+    except Exception as e:
+        logging.error(f"Failed to validate question with {provider}: {e}")
+        return False
 
 
 def get_embeddings(texts, provider, model_name):
@@ -109,7 +111,7 @@ def get_embeddings(texts, provider, model_name):
 
     elif provider == 'openai':
         try:
-            client = get_ai_client('openai') # This now gets the shared client
+            client = get_ai_client('openai')
             response = client.embeddings.create(input=texts, model=model_name)
             return [item.embedding for item in response.data]
         except (APIStatusError, APIConnectionError) as e:
@@ -118,6 +120,6 @@ def get_embeddings(texts, provider, model_name):
         except Exception as e:
             logging.error(f"Error generating embeddings with {provider}: {e}")
             raise
-    
+
     else:
         raise ValueError(f"Unsupported embedding provider: {provider}")

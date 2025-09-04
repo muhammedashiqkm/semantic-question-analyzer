@@ -1,5 +1,3 @@
-# app/api.py
-
 import logging
 import numpy as np
 from flask import request, jsonify, Blueprint, current_app
@@ -37,22 +35,24 @@ def check_similarity():
     except ValidationError as err:
         return jsonify(err.messages), 400
 
-    # Get the required providers from the request
     embedding_provider = data['embedding_provider']
     reasoning_provider = data['reasoning_provider']
-    
-    # Look up the specific model names from the app config
+
     embedding_model = get_model_from_provider('embedding', embedding_provider)
     reasoning_model = get_model_from_provider('reasoning', reasoning_provider)
-    
+
     if not all([embedding_model, reasoning_model]):
         return jsonify({"error": "Server configuration error: model name not found for a specified provider."}), 500
-        
+
     try:
         # Step 1: Validate incoming question quality
-        validation = validate_question_quality(data['question'], reasoning_provider, reasoning_model)
-        if not validation.get('is_valid'):
-            return jsonify({"error": "Invalid question provided", "reason": validation.get('reason')}), 400
+        # The helper now returns a simple True or False.
+        is_question_valid = validate_question_quality(data['question'], reasoning_provider, reasoning_model)
+        
+        
+        if not is_question_valid:
+            return jsonify({"error": "Invalid or poor-quality question provided."}), 400
+        
 
         # Step 2: Fetch and process existing questions
         existing_questions = fetch_questions_from_url(data['questions_url'])
@@ -70,7 +70,7 @@ def check_similarity():
         new_q_embedding = np.array([embeddings[0]])
         existing_q_embeddings = np.array(embeddings[1:])
         similarities = cosine_similarity(new_q_embedding, existing_q_embeddings)[0]
-        
+
         threshold = current_app.config['SIMILARITY_THRESHOLD']
         matched_questions = [
             existing_questions[i] for i, score in enumerate(similarities) if score >= threshold
@@ -83,6 +83,7 @@ def check_similarity():
     except Exception as e:
         logging.error(f"An unexpected error occurred in check_similarity: {e}", exc_info=True)
         return jsonify({"error": "An internal server error occurred."}), 500
+
 
 @api_bp.route('/group_similar_questions', methods=['POST'])
 @jwt_required()
@@ -117,7 +118,7 @@ def group_similar_questions():
             groups.setdefault(label, []).append(questions[i])
 
         matched_groups = [group for group in groups.values() if len(group) > 1]
-        
+
         return jsonify({"response": "yes", "matched_groups": matched_groups}) if matched_groups else jsonify({"response": "no"})
 
     except AIServiceUnavailableError as e:

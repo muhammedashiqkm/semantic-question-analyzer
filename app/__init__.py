@@ -10,7 +10,7 @@ from flask_cors import CORS
 from config import Config
 import google.generativeai as genai
 from flask import Flask, jsonify, current_app
-from openai import OpenAI # <-- Added
+from openai import OpenAI 
 
 # --- Initialize Extensions ---
 jwt = JWTManager()
@@ -70,7 +70,7 @@ def create_app():
         except Exception as e:
             app.logger.error(f"FATAL: Google AI Configuration Error: {e}")
 
-        # --- Client Instantiation Logic --- # <-- Changed
+        
         global openai_client, deepseek_client
         
         openai_api_key = current_app.config.get('OPENAI_API_KEY')
