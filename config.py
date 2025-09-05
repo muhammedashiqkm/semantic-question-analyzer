@@ -32,4 +32,4 @@ class Config:
     
     # CORS & Rate Limiting
     CORS_ORIGINS = os.environ.get('CORS_ORIGINS', '*').split(',')
-    RATELIMIT_STORAGE_URI = os.environ.get('RATELIMIT_STORAGE_URI',"memory://")
+    RATELIMIT_STORAGE_URI = os.environ.get('RATELIMIT_STORAGE_URI',"memcached://memcached:11211")
