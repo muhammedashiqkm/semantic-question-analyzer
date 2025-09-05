@@ -19,7 +19,7 @@ api_bp = Blueprint('api', __name__)
 similarity_schema = SimilarityCheckSchema()
 grouping_schema = GroupingSchema()
 
-# Using a type alias for Flask's typical JSON response structure
+
 JsonResponse = Tuple[Response, int]
 
 def get_model_from_provider(provider_type: str, provider_name: str) -> Optional[str]:
@@ -91,7 +91,6 @@ def check_similarity() -> JsonResponse:
     except AIServiceUnavailableError as e:
         return jsonify({"error": str(e)}), 503
     except Exception:
-        # Log the full traceback for unexpected errors
         logging.error("An unexpected error occurred in check_similarity", exc_info=True)
         return jsonify({"error": "An internal server error occurred."}), 500
 

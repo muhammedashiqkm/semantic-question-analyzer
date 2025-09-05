@@ -14,8 +14,6 @@ from openai import OpenAI
 
 # --- Initialize Extensions ---
 jwt = JWTManager()
-# Pass `SQLAlchemyAutoSchema` and `SQLAlchemySchema` to prevent the lookup
-# for the marshmallow-sqlalchemy integration.
 ma = Marshmallow()
 cors = CORS()
 limiter = Limiter(
@@ -56,8 +54,6 @@ def create_app():
 
     # --- Initialize Extensions with App ---
     jwt.init_app(app)
-    # When initializing with the app, we can tell Marshmallow that we won't
-    # be using the SQLAlchemy feature, which will suppress the warning.
     ma.init_app(app)
     limiter.init_app(app)
     cors.init_app(app, origins=app.config['CORS_ORIGINS'])

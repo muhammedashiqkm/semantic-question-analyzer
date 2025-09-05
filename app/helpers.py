@@ -4,10 +4,9 @@ import json
 from json import JSONDecodeError
 from typing import List, Dict, Any, Optional
 
-from flask import current_app, Response
+from flask import current_app
 import google.generativeai as genai
-from google.api_core import exceptions as google_exceptions
-from openai import APIStatusError, APIConnectionError, OpenAI
+from openai import OpenAI
 from bs4 import BeautifulSoup
 from . import openai_client, deepseek_client
 
@@ -55,25 +54,20 @@ def fetch_questions_from_url(url: str) -> Optional[List[Dict[str, Any]]]:
         response.raise_for_status()
         data = response.json()
         return data if isinstance(data, list) else None
-    except requests.exceptions.RequestException as e:
-        logging.error(f"Error fetching data from URL {url}: {e}")
-        return None
-    except JSONDecodeError:
-        logging.error(f"Failed to decode JSON from URL {url}")
+    except (requests.exceptions.RequestException, JSONDecodeError) as e:
+        logging.error(f"Error fetching or parsing URL {url}: {e}")
         return None
 
 def validate_question_quality(question_text: str, provider: str, model_name: str) -> bool:
     """
     Uses an LLM to check if a question is valid.
-    Returns ONLY a boolean: True if valid, False otherwise.
-    Raises AIServiceUnavailableError if the AI service itself is down.
+    Any error during the API call is caught and raised as a common service error.
     """
     system_prompt = (
         "You are an expert evaluator. Analyze the user's question. "
         "Determine if it is grammatically correct, complete, and makes logical sense. "
         "Respond ONLY with a valid JSON object with a single key: 'is_valid' (boolean)."
     )
-
     try:
         if provider == 'gemini':
             model = genai.GenerativeModel(model_name)
@@ -86,9 +80,7 @@ def validate_question_quality(question_text: str, provider: str, model_name: str
 
         elif provider in ['openai', 'deepseek']:
             client = get_ai_client(provider)
-            if not client:
-                raise ValueError(f"Could not get client for provider: {provider}")
-            
+            if not client: raise ValueError(f"Could not get client for provider: {provider}")
             response = client.chat.completions.create(
                 model=model_name,
                 messages=[
@@ -102,30 +94,20 @@ def validate_question_quality(question_text: str, provider: str, model_name: str
         
         else:
             raise ValueError(f"Unsupported reasoning provider: {provider}")
-
-   
-    except (google_exceptions.ServiceUnavailable, google_exceptions.RetryError, APIStatusError, APIConnectionError) as e:
-        logging.error(f"AI Service Unavailable (provider: {provider}) during quality check: {e}")
-        raise AIServiceUnavailableError(f"The {provider} quality check service is unavailable.")
     
-    
-    except JSONDecodeError:
-        logging.error(f"Failed to parse JSON from {provider} during quality check.")
-        return False
-
+    except Exception as e:
+        logging.error(f"An unexpected error occurred with the '{provider}' service during quality check: {e}")
+        raise AIServiceUnavailableError(f"The AI service for '{provider}' is currently unavailable.")
 
 
 def get_embeddings(texts: List[str], provider: str, model_name: str) -> List[List[float]]:
     """
-    Generates embeddings for a list of texts using the specified provider.
-    
-    :param texts: A list of strings to embed.
-    :param provider: The embedding provider ('gemini' or 'openai').
-    :param model_name: The specific model name to use.
-    :return: A list of embedding vectors.
+    Generates embeddings for a list of texts.
+    Any error during the API call is caught and raised as a common service error.
     """
-    if provider == 'gemini':
-        try:
+    try:
+        # The entire block of provider logic is wrapped in ONE try.
+        if provider == 'gemini':
             result = genai.embed_content(
                 model=model_name,
                 content=texts,
@@ -133,21 +115,16 @@ def get_embeddings(texts: List[str], provider: str, model_name: str) -> List[Lis
             )
             embedding = result['embedding']
             return [embedding] if not isinstance(embedding[0], list) else embedding
-        except (google_exceptions.ServiceUnavailable, google_exceptions.RetryError) as e:
-            logging.error(f"AI Service Unavailable (provider: {provider}): {e}")
-            raise AIServiceUnavailableError(f"The {provider} embedding service is unavailable.")
     
-
-    elif provider == 'openai':
-        try:
+        elif provider == 'openai':
             client = get_ai_client('openai')
-            if not client:
-                raise ValueError("Could not get OpenAI client")
+            if not client: raise ValueError("Could not get OpenAI client")
             response = client.embeddings.create(input=texts, model=model_name)
             return [item.embedding for item in response.data]
-        except (APIStatusError, APIConnectionError) as e:
-            logging.error(f"AI Service Unavailable (provider: {provider}): {e}")
-            raise AIServiceUnavailableError(f"The {provider} embedding service is unavailable.")
 
-    else:
-        raise ValueError(f"Unsupported embedding provider: {provider}")
+        else:
+            raise ValueError(f"Unsupported embedding provider: {provider}")
+
+    except Exception as e:
+        logging.error(f"An unexpected error occurred with the '{provider}' service during embedding: {e}")
+        raise AIServiceUnavailableError(f"The AI embedding service for '{provider}' is currently unavailable.")
