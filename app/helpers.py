@@ -5,21 +5,18 @@ from json import JSONDecodeError
 from typing import List, Dict, Any, Optional
 
 from flask import current_app
-import google.generativeai as genai
-from openai import OpenAI
+from google import genai
+from google.genai import types 
 from bs4 import BeautifulSoup
-from . import openai_client, deepseek_client
+from . import openai_client, deepseek_client, gemini_client
 
 class AIServiceUnavailableError(Exception):
     """Custom exception for when an external AI service is unavailable."""
     pass
 
-def get_ai_client(provider: str) -> Optional[OpenAI]:
+def get_ai_client(provider: str):
     """
     Returns a pre-initialized AI client for the given provider.
-    
-    :param provider: The name of the AI provider ('openai' or 'deepseek').
-    :return: An initialized OpenAI client instance or None.
     """
     if provider == 'openai':
         if not openai_client:
@@ -29,26 +26,20 @@ def get_ai_client(provider: str) -> Optional[OpenAI]:
         if not deepseek_client:
             raise ValueError("DeepSeek client is not initialized. Check API key.")
         return deepseek_client
+    if provider == 'gemini':
+        if not gemini_client:
+            raise ValueError("Gemini client is not initialized. Check API key.")
+        return gemini_client
     return None
 
 def clean_html(raw_html: str) -> str:
-    """
-    Removes HTML tags from a string.
-    
-    :param raw_html: The input string containing HTML.
-    :return: The cleaned text.
-    """
+    """Removes HTML tags from a string."""
     if not raw_html:
         return ""
     return BeautifulSoup(raw_html, "lxml").get_text().strip()
 
 def fetch_questions_from_url(url: str) -> Optional[List[Dict[str, Any]]]:
-    """
-    Fetches and parses question data from a given URL.
-
-    :param url: The URL to fetch data from.
-    :return: A list of dictionaries or None if an error occurs.
-    """
+    """Fetches and parses question data from a given URL."""
     try:
         response = requests.get(url, timeout=15)
         response.raise_for_status()
@@ -61,7 +52,6 @@ def fetch_questions_from_url(url: str) -> Optional[List[Dict[str, Any]]]:
 def validate_question_quality(question_text: str, provider: str, model_name: str) -> bool:
     """
     Uses an LLM to check if a question is valid.
-    Any error during the API call is caught and raised as a common service error.
     """
     system_prompt = (
         "You are an expert evaluator. Analyze the user's question. "
@@ -70,17 +60,19 @@ def validate_question_quality(question_text: str, provider: str, model_name: str
     )
     try:
         if provider == 'gemini':
-            model = genai.GenerativeModel(model_name)
-            response = model.generate_content(
-                f"{system_prompt}\n\nQuestion: \"{question_text}\"",
-                generation_config={"response_mime_type": "application/json"}
+            client = get_ai_client('gemini')
+            response = client.models.generate_content(
+                model=model_name,
+                contents=f"{system_prompt}\n\nQuestion: \"{question_text}\"",
+                config=types.GenerateContentConfig(
+                    response_mime_type="application/json"
+                )
             )
             result = json.loads(response.text)
             return result.get('is_valid', False)
 
         elif provider in ['openai', 'deepseek']:
             client = get_ai_client(provider)
-            if not client: raise ValueError(f"Could not get client for provider: {provider}")
             response = client.chat.completions.create(
                 model=model_name,
                 messages=[
@@ -103,22 +95,23 @@ def validate_question_quality(question_text: str, provider: str, model_name: str
 def get_embeddings(texts: List[str], provider: str, model_name: str) -> List[List[float]]:
     """
     Generates embeddings for a list of texts.
-    Any error during the API call is caught and raised as a common service error.
     """
     try:
-        # The entire block of provider logic is wrapped in ONE try.
         if provider == 'gemini':
-            result = genai.embed_content(
+            client = get_ai_client('gemini')
+            result = client.models.embed_content(
                 model=model_name,
-                content=texts,
-                task_type="RETRIEVAL_DOCUMENT"
+                contents=texts,
+                config=types.EmbedContentConfig(
+                    task_type="RETRIEVAL_DOCUMENT",
+                    output_dimensionality=768 
+                )
             )
-            embedding = result['embedding']
-            return [embedding] if not isinstance(embedding[0], list) else embedding
+            embeddings = [e.values for e in result.embeddings]
+            return embeddings
     
         elif provider == 'openai':
             client = get_ai_client('openai')
-            if not client: raise ValueError("Could not get OpenAI client")
             response = client.embeddings.create(input=texts, model=model_name)
             return [item.embedding for item in response.data]
 

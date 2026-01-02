@@ -9,7 +9,7 @@ auth_bp = Blueprint('auth', __name__)
 login_schema = LoginSchema()
 
 @auth_bp.route('/login', methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("10 per minute")
 def login():
     try:
         data = login_schema.load(request.get_json())

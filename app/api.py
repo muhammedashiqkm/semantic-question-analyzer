@@ -35,7 +35,6 @@ def health_check() -> JsonResponse:
 
 @api_bp.route('/check_similarity', methods=['POST'])
 @jwt_required()
-@limiter.limit("10 per minute")
 def check_similarity() -> JsonResponse:
     """Checks a new question for similarity against a list of existing questions."""
     try:
@@ -53,19 +52,16 @@ def check_similarity() -> JsonResponse:
         return jsonify({"error": "Server configuration error: model name not found for a specified provider."}), 500
 
     try:
-        # Step 1: Validate incoming question quality
         is_question_valid = validate_question_quality(data['question'], reasoning_provider, reasoning_model)
         if not is_question_valid:
             return jsonify({"error": "Invalid or poor-quality question provided."}), 400
         
-        # Step 2: Fetch and process existing questions
         existing_questions = fetch_questions_from_url(data['questions_url'])
         if existing_questions is None:
             return jsonify({"error": "Resource not found at URL or could not be parsed."}), 404
         if not existing_questions:
             return jsonify({"response": "no", "reason": "No existing questions to compare against."}), 200
 
-        # Step 3: Generate embeddings
         existing_questions_text = [clean_html(q.get('Question', '')) for q in existing_questions]
         all_texts = [data['question']] + existing_questions_text
         
@@ -73,7 +69,6 @@ def check_similarity() -> JsonResponse:
         if not embeddings:
             return jsonify({"error": "Failed to generate embeddings."}), 500
 
-        # Step 4: Calculate similarity
         new_q_embedding = np.array([embeddings[0]])
         existing_q_embeddings = np.array(embeddings[1:])
         similarities = cosine_similarity(new_q_embedding, existing_q_embeddings)[0]
@@ -97,7 +92,6 @@ def check_similarity() -> JsonResponse:
 
 @api_bp.route('/group_similar_questions', methods=['POST'])
 @jwt_required()
-@limiter.limit("5 per minute")
 def group_similar_questions() -> JsonResponse:
     """Groups a list of questions by semantic similarity."""
     try:
