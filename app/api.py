@@ -10,7 +10,7 @@ from sklearn.cluster import AgglomerativeClustering
 
 from .helpers import (
     fetch_questions_from_url, clean_html, get_embeddings,
-    validate_question_quality, AIServiceUnavailableError
+    verify_matches_with_llm, AIServiceUnavailableError
 )
 from .schemas import SimilarityCheckSchema, GroupingSchema
 from . import limiter
@@ -52,16 +52,12 @@ def check_similarity() -> JsonResponse:
         return jsonify({"error": "Server configuration error: model name not found for a specified provider."}), 500
 
     try:
-        is_question_valid = validate_question_quality(data['question'], reasoning_provider, reasoning_model)
-        if not is_question_valid:
-            return jsonify({"error": "Invalid or poor-quality question provided."}), 400
-        
         existing_questions = fetch_questions_from_url(data['questions_url'])
         if existing_questions is None:
             return jsonify({"error": "Resource not found at URL or could not be parsed."}), 404
         if not existing_questions:
             return jsonify({"response": "no", "reason": "No existing questions to compare against."}), 200
-
+        
         existing_questions_text = [clean_html(q.get('Question', '')) for q in existing_questions]
         all_texts = [data['question']] + existing_questions_text
         
@@ -74,12 +70,24 @@ def check_similarity() -> JsonResponse:
         similarities = cosine_similarity(new_q_embedding, existing_q_embeddings)[0]
 
         threshold = float(current_app.config['SIMILARITY_THRESHOLD'])
-        matched_questions = [
+        
+        matched_candidates = [
             existing_questions[i] for i, score in enumerate(similarities) if score >= threshold
         ]
         
-        if matched_questions:
-            return jsonify({"response": "yes", "matched_questions": matched_questions}), 200
+        if matched_candidates:
+            verified_matches = verify_matches_with_llm(
+                ref_question=data['question'],
+                candidates=matched_candidates,
+                provider=reasoning_provider,
+                model_name=reasoning_model,
+                task_type='similarity'
+            )
+            
+            if verified_matches:
+                return jsonify({"response": "yes", "matched_questions": verified_matches}), 200
+            else:
+                return jsonify({"response": "no"}), 200
         else:
             return jsonify({"response": "no"}), 200
 
@@ -93,16 +101,19 @@ def check_similarity() -> JsonResponse:
 @api_bp.route('/group_similar_questions', methods=['POST'])
 @jwt_required()
 def group_similar_questions() -> JsonResponse:
-    """Groups a list of questions by semantic similarity."""
+    """Groups a list of questions by semantic similarity with double verification."""
     try:
         data: Dict[str, Any] = grouping_schema.load(request.get_json())
     except ValidationError as err:
         return jsonify(err.messages), 400
 
     embedding_provider = data['embedding_provider']
-    embedding_model = get_model_from_provider('embedding', embedding_provider)
+    reasoning_provider = data['reasoning_provider']
 
-    if not embedding_model:
+    embedding_model = get_model_from_provider('embedding', embedding_provider)
+    reasoning_model = get_model_from_provider('reasoning', reasoning_provider)
+
+    if not all([embedding_model, reasoning_model]):
         return jsonify({"error": "Server configuration error: model name not found for the specified provider."}), 500
 
     try:
@@ -121,14 +132,35 @@ def group_similar_questions() -> JsonResponse:
             n_clusters=None, metric='cosine', linkage='average', distance_threshold=distance_threshold
         ).fit(embeddings)
 
-        groups: Dict[int, list] = {}
+        initial_groups: Dict[int, list] = {}
         for i, label in enumerate(clustering.labels_):
-            groups.setdefault(int(label), []).append(questions[i])
+            initial_groups.setdefault(int(label), []).append(questions[i])
 
-        matched_groups = [group for group in groups.values() if len(group) > 1]
+        verified_groups = []
+        
+        for group in initial_groups.values():
+            if len(group) < 2:
+                continue
 
-        if matched_groups:
-            return jsonify({"response": "yes", "matched_groups": matched_groups}), 200
+            anchor_question = group[0]
+            anchor_text = clean_html(anchor_question.get('Question', ''))
+            candidates = group[1:]
+
+            confirmed_matches = verify_matches_with_llm(
+                ref_question=anchor_text,
+                candidates=candidates,
+                provider=reasoning_provider,
+                model_name=reasoning_model,
+                task_type='grouping'
+            )
+
+            final_group = [anchor_question] + confirmed_matches
+
+            if len(final_group) > 1:
+                verified_groups.append(final_group)
+
+        if verified_groups:
+            return jsonify({"response": "yes", "matched_groups": verified_groups}), 200
         else:
             return jsonify({"response": "no"}), 200
 

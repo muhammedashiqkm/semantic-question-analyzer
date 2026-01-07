@@ -21,3 +21,4 @@ class GroupingSchema(ma.Schema):
     """Schema for question grouping request."""
     questions_url = ma.URL(required=True)
     embedding_provider = ma.Str(required=True, validate=validate.OneOf(SUPPORTED_EMBEDDING_PROVIDERS))
+    reasoning_provider = ma.Str(required=True, validate=validate.OneOf(SUPPORTED_REASONING_PROVIDERS))
