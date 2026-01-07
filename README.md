@@ -132,7 +132,8 @@ Fetches all questions from a URL, generates embeddings, and groups them into clu
     ```json
     {
       "questions_url": "https://example.com/api/questions.json",
-      "embedding_provider": "gemini"
+      "embedding_provider": "gemini",
+      "reasoning_provider": "gemini"
     }
     ```
 
