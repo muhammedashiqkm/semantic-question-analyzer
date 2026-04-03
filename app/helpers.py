@@ -156,3 +156,130 @@ def get_embeddings(texts: List[str], provider: str, model_name: str) -> List[Lis
     except Exception as e:
         logging.error(f"An unexpected error occurred with the '{provider}' service during embedding: {e}")
         raise AIServiceUnavailableError(f"The AI embedding service for '{provider}' is currently unavailable.")
+    
+    
+def convert_html_to_latex_with_llm(html_content: str, provider: str, model_name: str) -> str:
+    """
+    Converts messy HTML content directly into perfectly formatted LaTeX using an LLM.
+    """
+    prompt = f"""
+    You are an expert academic formatting assistant. 
+    Convert the following messy HTML question into clean, standardized LaTeX. 
+    
+    CRITICAL FORMATTING RULES:
+    - This text may be copy-pasted directly from ChatGPT, MS Word, or websites. IGNORE any weird markdown artifacts, leftover CSS, or formatting junk. Focus purely on extracting the core academic question.
+    - Fix any broken tags (like <b> without </b>) using \\textbf{{}} or \\textit{{}}.
+    - Ensure math equations are preserved perfectly and formatted for LaTeX (use $ $ or \\( \\)).
+    - For lists (like sub-questions or multiple choice options), standardize them using \\begin{{itemize}} or \\begin{{enumerate}}.
+    - FOR NORMAL QUESTIONS: If the text is just a standard descriptive question or plain text, output it as normal LaTeX text. Do NOT wrap normal questions in unnecessary lists or blocks.
+    - Do NOT change the logic, meaning, or variables of the question.
+    - Return ONLY the raw LaTeX code, without any markdown formatting blocks like ```latex.
+
+    Messy HTML to clean:
+    {html_content}
+    """
+
+    try:
+        if provider == 'gemini':
+            client = get_ai_client('gemini')
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt
+            )
+            text = response.text
+            
+        elif provider == 'openai':
+            client = get_ai_client('openai')
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1
+            )
+            text = response.choices[0].message.content
+            
+        elif provider == 'deepseek':
+            client = get_ai_client('deepseek')
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1
+            )
+            text = response.choices[0].message.content
+            
+        else:
+            raise ValueError(f"Unsupported reasoning provider: {provider}")
+
+        # Safety: Strip any markdown blocks if the LLM adds them (e.g. ```latex ... ```)
+        cleaned_text = text.strip()
+        if cleaned_text.startswith("```"):
+            # remove the first line (e.g., ```latex)
+            cleaned_text = cleaned_text.split("\n", 1)[-1] 
+        if cleaned_text.endswith("```"):
+            # remove the last line
+            cleaned_text = cleaned_text.rsplit("\n", 1)[0]
+
+        return cleaned_text.strip()
+
+    except Exception as e:
+        logging.error(f"An error occurred with the '{provider}' service during LaTeX conversion: {e}")
+        raise AIServiceUnavailableError(f"The AI service for '{provider}' is currently unavailable.")
+    """
+    Converts messy HTML content directly into perfectly formatted LaTeX using an LLM.
+    """
+    prompt = f"""
+    You are an expert academic formatting assistant. 
+    Convert the following messy HTML question into clean, standardized LaTeX. 
+    - Fix any broken tags (like <b> without </b>).
+    - Ensure math equations are preserved perfectly and formatted for LaTeX.
+    - Standardize lists using itemize or enumerate.
+    - Do NOT change the logic, meaning, or variables of the question.
+    - Return ONLY the raw LaTeX code, without any markdown formatting blocks.
+
+    Messy HTML to clean:
+    {html_content}
+    """
+
+    try:
+        if provider == 'gemini':
+            client = get_ai_client('gemini')
+            response = client.models.generate_content(
+                model=model_name,
+                contents=prompt
+            )
+            text = response.text
+            
+        elif provider == 'openai':
+            client = get_ai_client('openai')
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1
+            )
+            text = response.choices[0].message.content
+            
+        elif provider == 'deepseek':
+            client = get_ai_client('deepseek')
+            response = client.chat.completions.create(
+                model=model_name,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=0.1
+            )
+            text = response.choices[0].message.content
+            
+        else:
+            raise ValueError(f"Unsupported reasoning provider: {provider}")
+
+        # Safety: Strip any markdown blocks if the LLM adds them (e.g. ```latex ... ```)
+        cleaned_text = text.strip()
+        if cleaned_text.startswith("```"):
+            # remove the first line (e.g., ```latex)
+            cleaned_text = cleaned_text.split("\n", 1)[-1] 
+        if cleaned_text.endswith("```"):
+            # remove the last line
+            cleaned_text = cleaned_text.rsplit("\n", 1)[0]
+
+        return cleaned_text.strip()
+
+    except Exception as e:
+        logging.error(f"An error occurred with the '{provider}' service during LaTeX conversion: {e}")
+        raise AIServiceUnavailableError(f"The AI service for '{provider}' is currently unavailable.")

@@ -10,14 +10,16 @@ from sklearn.cluster import AgglomerativeClustering
 
 from .helpers import (
     fetch_questions_from_url, clean_html, get_embeddings,
-    verify_matches_with_llm, AIServiceUnavailableError
+    verify_matches_with_llm, AIServiceUnavailableError,
+    convert_html_to_latex_with_llm
 )
-from .schemas import SimilarityCheckSchema, GroupingSchema
-from . import limiter
+from .schemas import SimilarityCheckSchema, GroupingSchema, LatexConversionSchema   
+
 
 api_bp = Blueprint('api', __name__)
 similarity_schema = SimilarityCheckSchema()
 grouping_schema = GroupingSchema()
+latex_schema = LatexConversionSchema()
 
 
 JsonResponse = Tuple[Response, int]
@@ -169,3 +171,33 @@ def group_similar_questions() -> JsonResponse:
     except Exception:
         logging.error("An unexpected error occurred in group_similar_questions", exc_info=True)
         return jsonify({"error": "An internal server error occurred."}), 500
+    
+    
+@api_bp.route('/convert-to-latex', methods=['POST'])
+def convert_to_latex() -> JsonResponse:
+    """Converts HTML questions into LaTeX."""
+    try:
+        data = latex_schema.load(request.get_json())
+    except ValidationError as err:
+        return jsonify(err.messages), 400
+
+    html_content = data['html_content']
+    provider = data['reasoning_provider']
+    
+    # Get the configured model name for this provider
+    model_name = get_model_from_provider('reasoning', provider)
+    if not model_name:
+        return jsonify({"error": f"Reasoning model for provider '{provider}' not configured."}), 500
+
+    try:
+        # Call our new helper function
+        latex_code = convert_html_to_latex_with_llm(html_content, provider, model_name)
+        
+        # Return exactly what Angular expects!
+        return jsonify({"latex_code": latex_code}), 200
+        
+    except AIServiceUnavailableError as e:
+        return jsonify({"error": str(e)}), 503
+    except Exception as e:
+        logging.error(f"An unexpected error occurred in latex conversion: {e}")
+        return jsonify({"error": "An internal error occurred."}), 500

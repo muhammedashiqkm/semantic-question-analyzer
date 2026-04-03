@@ -22,3 +22,9 @@ class GroupingSchema(ma.Schema):
     questions_url = ma.URL(required=True)
     embedding_provider = ma.Str(required=True, validate=validate.OneOf(SUPPORTED_EMBEDDING_PROVIDERS))
     reasoning_provider = ma.Str(required=True, validate=validate.OneOf(SUPPORTED_REASONING_PROVIDERS))
+    
+    
+class LatexConversionSchema(ma.Schema):
+    """Schema for HTML to LaTeX conversion request."""
+    html_content = ma.Str(required=True)
+    reasoning_provider = ma.Str(required=False, validate=validate.OneOf(SUPPORTED_REASONING_PROVIDERS), load_default="gemini")

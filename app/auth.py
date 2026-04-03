@@ -3,13 +3,11 @@ from flask import request, jsonify, Blueprint, current_app
 from flask_jwt_extended import create_access_token
 from marshmallow import ValidationError
 from .schemas import LoginSchema
-from . import limiter
 
 auth_bp = Blueprint('auth', __name__)
 login_schema = LoginSchema()
 
 @auth_bp.route('/login', methods=['POST'])
-@limiter.limit("10 per minute")
 def login():
     try:
         data = login_schema.load(request.get_json())
