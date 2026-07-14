@@ -175,27 +175,29 @@ def group_similar_questions() -> JsonResponse:
     
 @api_bp.route('/convert-to-latex', methods=['POST'])
 def convert_to_latex() -> JsonResponse:
-    """Converts HTML questions into LaTeX."""
+    """Converts a list of HTML questions into LaTeX."""
     try:
         data = latex_schema.load(request.get_json())
     except ValidationError as err:
         return jsonify(err.messages), 400
 
-    html_content = data['html_content']
+    html_contents = data['html_contents']
     provider = data['reasoning_provider']
-    
+
     # Get the configured model name for this provider
     model_name = get_model_from_provider('reasoning', provider)
     if not model_name:
         return jsonify({"error": f"Reasoning model for provider '{provider}' not configured."}), 500
 
     try:
-        # Call our new helper function
-        latex_code = convert_html_to_latex_with_llm(html_content, provider, model_name)
-        
-        # Return exactly what Angular expects!
-        return jsonify({"latex_code": latex_code}), 200
-        
+        # Convert each question, preserving input order
+        latex_codes = [
+            convert_html_to_latex_with_llm(html_content, provider, model_name)
+            for html_content in html_contents
+        ]
+
+        return jsonify({"latex_codes": latex_codes}), 200
+
     except AIServiceUnavailableError as e:
         return jsonify({"error": str(e)}), 503
     except Exception as e:

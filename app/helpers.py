@@ -163,81 +163,46 @@ def convert_html_to_latex_with_llm(html_content: str, provider: str, model_name:
     Converts messy HTML content directly into perfectly formatted LaTeX using an LLM.
     """
     prompt = f"""
-    You are an expert academic formatting assistant. 
-    Convert the following messy HTML question into clean, standardized LaTeX. 
-    
+    You are an expert academic formatting assistant for University Question Papers. 
+    Your exact task is to convert the following messy HTML question into clean, compilable, and standardized LaTeX.
+
     CRITICAL FORMATTING RULES:
-    - This text may be copy-pasted directly from ChatGPT, MS Word, or websites. IGNORE any weird markdown artifacts, leftover CSS, or formatting junk. Focus purely on extracting the core academic question.
-    - Fix any broken tags (like <b> without </b>) using \\textbf{{}} or \\textit{{}}.
-    - Ensure math equations are preserved perfectly and formatted for LaTeX (use $ $ or \\( \\)).
-    - For lists (like sub-questions or multiple choice options), standardize them using \\begin{{itemize}} or \\begin{{enumerate}}.
-    - FOR NORMAL QUESTIONS: If the text is just a standard descriptive question or plain text, output it as normal LaTeX text. Do NOT wrap normal questions in unnecessary lists or blocks.
-    - Do NOT change the logic, meaning, or variables of the question.
-    - Return ONLY the raw LaTeX code, without any markdown formatting blocks like ```latex.
+
+    1. GENERAL CLEANUP & TEXT:
+       - The input may be copy-pasted from ChatGPT, MS Word, or websites. IGNORE any leftover CSS, classes, markdown artifacts, or formatting junk. Extract the core academic text.
+       - Fix broken or messy tags (like <b>, <strong>, <i>, <em>) using \\textbf{{}} and \\textit{{}}.
+       - If content is centered in HTML, wrap it in \\begin{{center}} ... \\end{{center}}.
+       - Do not change the logic, meaning, or variables of the question.
+
+    2. TABLES (CRITICAL MARGIN RULE):
+       - NEVER use the standard \\begin{{tabular}} environment.
+       - ALWAYS use \\begin{{tabularx}}{{\\linewidth}} for tables to ensure they fit A4 margins.
+       - Use the 'X' column specifier for any column containing descriptive text (e.g., {{|c|X|X|}}).
+       - IMPORTANT: The '&' character MUST be used as the column separator. Do NOT escape '&' if it is being used to separate table cells.
+
+    3. IMAGES & PLACEHOLDERS (CRITICAL PRESERVATION RULE):
+       - The input text will contain image placeholders formatted exactly like [IMAGE_PLACEHOLDER_0] or [IMAGE_PLACEHOLDER].
+       - You MUST leave these placeholders EXACTLY as they are in your final LaTeX output.
+       - DO NOT escape the square brackets or underscores inside the placeholder (i.e., do NOT change it to \[IMAGE\_PLACEHOLDER\_0\]). The downstream system requires this exact string to inject the images.
+       - If you happen to see any leftover raw <img src="..."> HTML tags, leave them exactly as they are without converting them.
+       
+       
+    4. MATH, CHEMISTRY & SYMBOLS:
+       - Preserve math equations perfectly using standard LaTeX math mode ($...$ or \\(...\\)).
+       - Wrap chemical formulas (e.g., H2SO4) and reaction types (e.g., SN1, SN2) in math mode (e.g., $H_2SO_4$, $S_N1$).
+       - CRITICAL: Escape special characters outside of math mode: % to \\%, # to \\#, $ to \\$, and _ to \\_. 
+       - Only escape '&' to \\& if it appears as text (e.g., "Research & Development") and is NOT a table separator.
+
+    5. LISTS:
+       - Standardize lists using \\begin{{itemize}} or \\begin{{enumerate}}.
+       - In table cells, avoid complex list environments unless the column is an 'X' type.
+
+    OUTPUT FORMAT:
+    Return ONLY the raw LaTeX code. Do NOT wrap the response in markdown blocks like ```latex. No conversational text.
 
     Messy HTML to clean:
     {html_content}
-    """
-
-    try:
-        if provider == 'gemini':
-            client = get_ai_client('gemini')
-            response = client.models.generate_content(
-                model=model_name,
-                contents=prompt
-            )
-            text = response.text
-            
-        elif provider == 'openai':
-            client = get_ai_client('openai')
-            response = client.chat.completions.create(
-                model=model_name,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1
-            )
-            text = response.choices[0].message.content
-            
-        elif provider == 'deepseek':
-            client = get_ai_client('deepseek')
-            response = client.chat.completions.create(
-                model=model_name,
-                messages=[{"role": "user", "content": prompt}],
-                temperature=0.1
-            )
-            text = response.choices[0].message.content
-            
-        else:
-            raise ValueError(f"Unsupported reasoning provider: {provider}")
-
-        # Safety: Strip any markdown blocks if the LLM adds them (e.g. ```latex ... ```)
-        cleaned_text = text.strip()
-        if cleaned_text.startswith("```"):
-            # remove the first line (e.g., ```latex)
-            cleaned_text = cleaned_text.split("\n", 1)[-1] 
-        if cleaned_text.endswith("```"):
-            # remove the last line
-            cleaned_text = cleaned_text.rsplit("\n", 1)[0]
-
-        return cleaned_text.strip()
-
-    except Exception as e:
-        logging.error(f"An error occurred with the '{provider}' service during LaTeX conversion: {e}")
-        raise AIServiceUnavailableError(f"The AI service for '{provider}' is currently unavailable.")
-    """
-    Converts messy HTML content directly into perfectly formatted LaTeX using an LLM.
-    """
-    prompt = f"""
-    You are an expert academic formatting assistant. 
-    Convert the following messy HTML question into clean, standardized LaTeX. 
-    - Fix any broken tags (like <b> without </b>).
-    - Ensure math equations are preserved perfectly and formatted for LaTeX.
-    - Standardize lists using itemize or enumerate.
-    - Do NOT change the logic, meaning, or variables of the question.
-    - Return ONLY the raw LaTeX code, without any markdown formatting blocks.
-
-    Messy HTML to clean:
-    {html_content}
-    """
+"""
 
     try:
         if provider == 'gemini':

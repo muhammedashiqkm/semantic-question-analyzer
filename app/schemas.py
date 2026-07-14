@@ -26,5 +26,5 @@ class GroupingSchema(ma.Schema):
     
 class LatexConversionSchema(ma.Schema):
     """Schema for HTML to LaTeX conversion request."""
-    html_content = ma.Str(required=True)
+    html_contents = ma.List(ma.Str(), required=True, validate=validate.Length(min=1))
     reasoning_provider = ma.Str(required=False, validate=validate.OneOf(SUPPORTED_REASONING_PROVIDERS), load_default="gemini")
