@@ -162,7 +162,7 @@ def convert_html_to_latex_with_llm(html_content: str, provider: str, model_name:
     """
     Converts messy HTML content directly into perfectly formatted LaTeX using an LLM.
     """
-    prompt = f"""
+    prompt = rf"""
     You are an expert academic formatting assistant for University Question Papers. 
     Your exact task is to convert the following messy HTML question into clean, compilable, and standardized LaTeX.
 

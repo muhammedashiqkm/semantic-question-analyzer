@@ -6,22 +6,21 @@ services:
       context: .
       dockerfile: Dockerfile 
     container_name: semantic-analyzer-api
+    # PORT comes from .env - compose reads that file for these substitutions,
+    # so the published port follows the one the service listens on.
     ports:
-      - "8000:8000"
+      - "${PORT:-5009}:${PORT:-5009}"
     environment:
       - FLASK_ENV=production
       - PYTHONUNBUFFERED=1
+      # Values here win over env_file, so this overrides HOST without editing
+      # .env - a container has to listen on every interface.
+      - HOST=0.0.0.0
     env_file:
       - .env
     volumes:
       - logs:/usr/src/app/logs
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      interval: 30s 
-      timeout: 10s   
-      retries: 3       
-      start_period: 40s
 
 volumes:
   logs:

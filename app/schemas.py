@@ -5,11 +5,6 @@ from . import ma
 SUPPORTED_EMBEDDING_PROVIDERS = ["gemini", "openai"]
 SUPPORTED_REASONING_PROVIDERS = ["gemini", "openai", "deepseek"]
 
-class LoginSchema(ma.Schema):
-    """Schema for login request."""
-    username = ma.Str(required=True)
-    password = ma.Str(required=True)
-
 class SimilarityCheckSchema(ma.Schema):
     """Schema for similarity check request."""
     questions_url = ma.URL(required=True)

@@ -3,7 +3,6 @@ import numpy as np
 from typing import Tuple, Dict, Any, Optional
 
 from flask import request, jsonify, Blueprint, current_app, Response
-from flask_jwt_extended import jwt_required
 from marshmallow import ValidationError
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.cluster import AgglomerativeClustering
@@ -13,7 +12,10 @@ from .helpers import (
     verify_matches_with_llm, AIServiceUnavailableError,
     convert_html_to_latex_with_llm
 )
-from .schemas import SimilarityCheckSchema, GroupingSchema, LatexConversionSchema   
+from .schemas import SimilarityCheckSchema, GroupingSchema, LatexConversionSchema
+from .security import require_api_key
+from .errors import (JsonResponse, bad_request, internal, invalid_payload,
+                     unavailable, upstream_failed)
 
 
 api_bp = Blueprint('api', __name__)
@@ -22,41 +24,107 @@ grouping_schema = GroupingSchema()
 latex_schema = LatexConversionSchema()
 
 
-JsonResponse = Tuple[Response, int]
-
 def get_model_from_provider(provider_type: str, provider_name: str) -> Optional[str]:
     """Looks up the configured model name for a given provider."""
     key = f"{provider_name.upper()}_{provider_type.upper()}_MODEL"
     model_name = current_app.config.get(key)
     return str(model_name) if model_name else None
 
+
+def providers_for(provider_type: str) -> list:
+    """Which providers this deployment can actually use for a role."""
+    known = ("gemini", "openai", "deepseek")
+    return [name for name in known if get_model_from_provider(provider_type, name)]
+
+
+def unusable_provider(provider_type: str, provider_name: str) -> Optional[JsonResponse]:
+    """
+    Says why a named provider cannot be used, or nothing if it can.
+
+    Two different answers, which used to be one 500 between them: a provider
+    this service has never heard of is the caller's mistake and no amount of
+    retrying will help, while a provider that exists but has no key here is
+    this deployment's gap and may be fixed by the time they try again.
+    """
+    if get_model_from_provider(provider_type, provider_name):
+        return None
+
+    available = providers_for(provider_type)
+    if not available:
+        return unavailable(
+            f"No {provider_type} provider is configured on this service. "
+            "Set its API key and model name, then try again."
+        )
+
+    return bad_request(
+        f"'{provider_name}' is not a provider this service can use for {provider_type}. "
+        f"It has: {', '.join(available)}."
+    )
+
 @api_bp.route('/health', methods=['GET'])
 def health_check() -> JsonResponse:
-    """Provides a simple health check endpoint."""
-    return jsonify({"status": "api_healthy"}), 200
+    """
+    Whether this service can actually do its work.
+
+    Open, so a monitor can reach it without the key - it names what is
+    configured and never the keys themselves. "healthy" says the process is up;
+    "providers" is the part worth reading, because a provider with no key is
+    unavailable and a request naming it will be refused.
+    """
+    from . import deepseek_client, gemini_client, openai_client
+
+    embedding = {
+        "gemini": bool(gemini_client) and bool(current_app.config.get("GEMINI_EMBEDDING_MODEL")),
+        "openai": bool(openai_client) and bool(current_app.config.get("OPENAI_EMBEDDING_MODEL")),
+    }
+    reasoning = {
+        "gemini": bool(gemini_client) and bool(current_app.config.get("GEMINI_REASONING_MODEL")),
+        "openai": bool(openai_client) and bool(current_app.config.get("OPENAI_REASONING_MODEL")),
+        "deepseek": bool(deepseek_client) and bool(current_app.config.get("DEEPSEEK_REASONING_MODEL")),
+    }
+
+    return jsonify({
+        "status": "healthy",
+        "service": "semantic-question-analyzer",
+        "version": "1.0.0",
+        "api_key_required": bool(current_app.config.get("API_KEY")),
+        "similarity_threshold": current_app.config.get("SIMILARITY_THRESHOLD"),
+        "providers": {
+            "embedding": [name for name, ready in embedding.items() if ready],
+            "reasoning": [name for name, ready in reasoning.items() if ready],
+        },
+        "usable": any(embedding.values()) and any(reasoning.values()),
+    }), 200
 
 @api_bp.route('/check_similarity', methods=['POST'])
-@jwt_required()
+@require_api_key
 def check_similarity() -> JsonResponse:
     """Checks a new question for similarity against a list of existing questions."""
     try:
         data: Dict[str, Any] = similarity_schema.load(request.get_json())
     except ValidationError as err:
-        return jsonify(err.messages), 400
+        return invalid_payload(err.messages)
 
     embedding_provider = data['embedding_provider']
     reasoning_provider = data['reasoning_provider']
 
+    refused = (unusable_provider('embedding', embedding_provider)
+               or unusable_provider('reasoning', reasoning_provider))
+    if refused:
+        return refused
+
     embedding_model = get_model_from_provider('embedding', embedding_provider)
     reasoning_model = get_model_from_provider('reasoning', reasoning_provider)
-
-    if not all([embedding_model, reasoning_model]):
-        return jsonify({"error": "Server configuration error: model name not found for a specified provider."}), 500
 
     try:
         existing_questions = fetch_questions_from_url(data['questions_url'])
         if existing_questions is None:
-            return jsonify({"error": "Resource not found at URL or could not be parsed."}), 404
+            # The bank is fetched from a URL the CALLER gives, so this is not a
+            # 404 of ours - answering with one reads as "no such endpoint".
+            return upstream_failed(
+                "The question bank could not be read from questions_url. Check that the "
+                "address is right and reachable from this service."
+            )
         if not existing_questions:
             return jsonify({"response": "no", "reason": "No existing questions to compare against."}), 200
         
@@ -65,7 +133,9 @@ def check_similarity() -> JsonResponse:
         
         embeddings = get_embeddings(all_texts, provider=embedding_provider, model_name=embedding_model)
         if not embeddings:
-            return jsonify({"error": "Failed to generate embeddings."}), 500
+            return upstream_failed(
+                f"The {embedding_provider} embedding model returned nothing for these questions."
+            )
 
         new_q_embedding = np.array([embeddings[0]])
         existing_q_embeddings = np.array(embeddings[1:])
@@ -94,29 +164,31 @@ def check_similarity() -> JsonResponse:
             return jsonify({"response": "no"}), 200
 
     except AIServiceUnavailableError as e:
-        return jsonify({"error": str(e)}), 503
+        return unavailable(str(e))
     except Exception:
         logging.error("An unexpected error occurred in check_similarity", exc_info=True)
-        return jsonify({"error": "An internal server error occurred."}), 500
+        return internal()
 
 
 @api_bp.route('/group_similar_questions', methods=['POST'])
-@jwt_required()
+@require_api_key
 def group_similar_questions() -> JsonResponse:
     """Groups a list of questions by semantic similarity with double verification."""
     try:
         data: Dict[str, Any] = grouping_schema.load(request.get_json())
     except ValidationError as err:
-        return jsonify(err.messages), 400
+        return invalid_payload(err.messages)
 
     embedding_provider = data['embedding_provider']
     reasoning_provider = data['reasoning_provider']
 
+    refused = (unusable_provider('embedding', embedding_provider)
+               or unusable_provider('reasoning', reasoning_provider))
+    if refused:
+        return refused
+
     embedding_model = get_model_from_provider('embedding', embedding_provider)
     reasoning_model = get_model_from_provider('reasoning', reasoning_provider)
-
-    if not all([embedding_model, reasoning_model]):
-        return jsonify({"error": "Server configuration error: model name not found for the specified provider."}), 500
 
     try:
         questions = fetch_questions_from_url(data['questions_url'])
@@ -127,7 +199,9 @@ def group_similar_questions() -> JsonResponse:
         embeddings = get_embeddings(questions_text, provider=embedding_provider, model_name=embedding_model)
 
         if not embeddings:
-            return jsonify({"error": "Failed to generate embeddings."}), 500
+            return upstream_failed(
+                f"The {embedding_provider} embedding model returned nothing for these questions."
+            )
 
         distance_threshold = 1 - float(current_app.config['SIMILARITY_THRESHOLD'])
         clustering = AgglomerativeClustering(
@@ -167,19 +241,20 @@ def group_similar_questions() -> JsonResponse:
             return jsonify({"response": "no"}), 200
 
     except AIServiceUnavailableError as e:
-        return jsonify({"error": str(e)}), 503
+        return unavailable(str(e))
     except Exception:
         logging.error("An unexpected error occurred in group_similar_questions", exc_info=True)
-        return jsonify({"error": "An internal server error occurred."}), 500
+        return internal()
     
     
 @api_bp.route('/convert-to-latex', methods=['POST'])
+@require_api_key
 def convert_to_latex() -> JsonResponse:
     """Converts a list of HTML questions into LaTeX."""
     try:
         data = latex_schema.load(request.get_json())
     except ValidationError as err:
-        return jsonify(err.messages), 400
+        return invalid_payload(err.messages)
 
     html_contents = data['html_contents']
     provider = data['reasoning_provider']
@@ -187,7 +262,9 @@ def convert_to_latex() -> JsonResponse:
     # Get the configured model name for this provider
     model_name = get_model_from_provider('reasoning', provider)
     if not model_name:
-        return jsonify({"error": f"Reasoning model for provider '{provider}' not configured."}), 500
+        refused = unusable_provider('reasoning', provider)
+        if refused:
+            return refused
 
     try:
         # Convert each question, preserving input order
@@ -199,7 +276,7 @@ def convert_to_latex() -> JsonResponse:
         return jsonify({"latex_codes": latex_codes}), 200
 
     except AIServiceUnavailableError as e:
-        return jsonify({"error": str(e)}), 503
-    except Exception as e:
-        logging.error(f"An unexpected error occurred in latex conversion: {e}")
-        return jsonify({"error": "An internal error occurred."}), 500
+        return unavailable(str(e))
+    except Exception:
+        logging.error("An unexpected error occurred in convert_to_latex", exc_info=True)
+        return internal()
